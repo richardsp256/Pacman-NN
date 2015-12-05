@@ -28,7 +28,11 @@ God.Simulation = function {
 	var geneticAlgo;
 	var currentGeneration;
 	
-	function init(){
+	var best;
+	
+	var curIsAlive;
+	
+	function init(loadBest){
 		average_fitness = [];
 		best_fitness = [];
 		pacmen_agents = [];
@@ -37,27 +41,37 @@ God.Simulation = function {
 		}
 		var numWeights = pacmen_agents[0].getWeightsCount();
 		
-		geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
-		pacmen_chromos = geneticAlgo.getPopulation();
+		if(!loadBest){
 		
-		for (i=0; i<Params.POPULATION; i++)
-			pacmen_agents[i].PutWeights(pacmen_chromos[i].weights);
+			geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
+			pacmen_chromos = geneticAlgo.getPopulation();
+			
+			for (i=0; i<Params.POPULATION; i++)
+				pacmen_agents[i].PutWeights(pacmen_chromos[i].weights);
+			
+		} else {
+			loadBest();
+		}
 			
 		pacman_game = new FAST_PACMAN();
+		pacman_game.init();
 		cur_completed = 0;
 	}
 	
 	function runGeneration(){
 		for(int i = 0; i < Params.POPULATION){
-			pacman_game.startNewGame(pacmen_agents[i],subSimCompleted)
-			
+			curIsAlive = true;
+			pacman_game.startNewGame(pacmen_agents[i],subSimCompleted);	
+			while(curIsAlive)
+				pacman_game.update();
 		}
 	}
 	
 	function subSimCompleted(fitness){
+		curIsAlive = false;
 		pacmen_chromos[cur_completed].fitness = pacmen_agents[cur_completed].fitness;
 		cur_completed++;
-		if(cur_completed == 50){
+		if(cur_completed == Params.POPULATION){
 			cur_completed = 0;
 			finishGeneration();
 		}
@@ -66,6 +80,8 @@ God.Simulation = function {
 	function finishGeneration(){
 		average_fitness.append(geneticAlgo.AverageFitness());
 		best_fitness.append(geneticAlgo.BestFitness());
+		
+		geneticAlgo.getBest(1,1,best);
 		
 		//increment the generation counter
 		currentGeneration++;
@@ -80,6 +96,22 @@ God.Simulation = function {
 			pacmen_agents[i].reset();
 		}
 	}
+	
+	function saveBest(){
+		var actBest = best[0];
+		window.open('data:text/text;charset=utf-8,' + actBest.weights + "\n" + actBest.fitness);
+	}
+	
+	function loadBest(){
+	}
+	
+	function mainLoop(){
+		while(true)
+			runGeneration();
+	}
+	
+	init(0);
+	mainLoop();
 }
 
 var NONE = 4,
