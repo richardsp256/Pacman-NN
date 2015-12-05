@@ -1,0 +1,10 @@
+Params.PACMANCOUNT = 50;
+Params.BIAS = .1;
+Params.POPULATION = 0;
+Params.MUTATION_RATE = 0;
+Params.CROSS_RATE = 0;
+Params.WEIGHT_COUNT = 0;
+Params.PERTURBATION_RATE = 0;
+Params.THRESHOLD = 0;
+Params.ELITE_COUNT = 0;         //Number of "elite" genomes to sample from.
+Params.ELITE_NUMBER = 0;        //Index of the "elite" ?
