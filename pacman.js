@@ -1457,7 +1457,7 @@ Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
 GENOMICS BEGIN
 
 ************************************************/
-
+/*
 Genomics.Genome = function (weightsArray, fitnessFloat) {
     var weights = weightsArray,
         fitness = fitnessFloat;
@@ -1639,14 +1639,14 @@ Genomics.Algorithm = function (popSize, mutRate, crossRate, numWeights, maxPertu
         return bestFitness;
     }
 }
-
+*/
 
 /************************************
 
 NEURAL PACMAN CONTROLLER
 
 ************************************/
-
+/*
 Neural.Agent = function()
 {
     var neuralNetwork = new Neural.NeuralNetwork(Params.BIAS, Params.THRESHOLD),
@@ -1751,4 +1751,4 @@ Neural.Agent = function()
         return neuralNetwork.getWeightsCount();
     }
 }
-
+*/
