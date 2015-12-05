@@ -19,10 +19,7 @@ var NONE = 4,
     COUNTDOWN = 8,
     EATEN_PAUSE = 9,
     DYING = 10,
-    Pacman = {},
-    Neural = {},
-    Genomics = {},
-    Params = {};
+    Pacman = {};
 
 Pacman.FPS = 30;
 
@@ -1280,23 +1277,5 @@ Object.prototype.clone = function () {
     return newObj;
 };
 
-/**********************************************
-                UTILS
-**********************************************/
 
-Params.BIAS = .1;
-Params.POPULATION = 0;
-Params.MUTATION_RATE = 0;
-Params.CROSS_RATE = 0;
-Params.WEIGHT_COUNT = 0;
-Params.PERTURBATION_RATE = 0;
-Params.THRESHOLD = 0;
-Params.ELITE_COUNT = 0;         //Number of "elite" genomes to sample from.
-Params.ELITE_NUMBER = 0;        //Index of the "elite" ?
-
-var fill = function (source, sink) {
-    for (i = 0; i < source.length; i++) {
-        source.push(sink[i]);
-    }
-}
 

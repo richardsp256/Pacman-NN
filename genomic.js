@@ -3,6 +3,7 @@
 GENOMICS BEGIN
 
 ************************************************/
+var Genomics = {};
 
 Genomics.Genome = function (weightsArray, fitnessFloat) {
     var weights = weightsArray,
