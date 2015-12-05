@@ -33,6 +33,9 @@ var FAST_PACMAN = (function () {
     }
 
     function startNewGame(neuralAgent, onDeath) {
+
+        console.log("START NEW");
+
         setState(WAITING);
         level = 1;
         user.neuralAgent = neuralAgent
@@ -74,6 +77,7 @@ var FAST_PACMAN = (function () {
 
     function update()
     {
+        console.log("UPDATE:" + tick);
         dt = .01;
         mainLoop(dt);
     }
@@ -157,7 +161,7 @@ var FAST_PACMAN = (function () {
     };
 
     function init(wrapper, root) {
-
+        console.log("INIT");
         var i, len, ghost,
             blockSize = wrapper.offsetWidth / 19,
             canvas = document.createElement("canvas");

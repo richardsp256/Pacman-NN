@@ -17,8 +17,8 @@ Params.PERTURBATION_RATE = 0;
 Params.THRESHOLD = 0;
 Params.ELITE_COUNT = 0;         //Number of "elite" genomes to sample from.
 Params.ELITE_NUMBER = 0;        //Index of the "elite" ?
- 
-God.Simulation = function {
+var God = {};
+God.Simulation = function() {
 	var pacmen_agents;
 	var pacmen_chromos;
 	var average_fitness;
@@ -36,7 +36,7 @@ God.Simulation = function {
 		average_fitness = [];
 		best_fitness = [];
 		pacmen_agents = [];
-		for(int i = 0; i < Params.POPULATION; i++){
+		for(var i = 0; i < Params.POPULATION; i++){
 			pacmen_agents.append(new Neural.Agent());
 		}
 		var numWeights = pacmen_agents[0].getWeightsCount();
@@ -59,7 +59,7 @@ God.Simulation = function {
 	}
 	
 	function runGeneration(){
-		for(int i = 0; i < Params.POPULATION){
+	    for(var i = 0; i < Params.POPULATION;i++){
 			curIsAlive = true;
 			pacman_game.startNewGame(pacmen_agents[i],subSimCompleted);	
 			while(curIsAlive)
@@ -91,7 +91,7 @@ God.Simulation = function {
 		
 		//insert the new (hopefully)improved brains back into the sweepers
 		//and reset their positions etc
-		for (int i=0; i<Params.POPULATION; ++i) {
+		for (var i=0; i<Params.POPULATION; ++i) {
 			pacmen_agents[i].setWeights(pacmen_chromos[i].vecWeights);
 			pacmen_agents[i].reset();
 		}
