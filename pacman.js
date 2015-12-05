@@ -7,6 +7,80 @@
  * fix what happens when a ghost is eaten (should go back to base)
  * do proper ghost mechanics (blinky/wimpy etc)
  */
+ 
+Params.BIAS = .1;
+Params.POPULATION = 50;
+Params.MUTATION_RATE = 0;
+Params.CROSS_RATE = 0;
+Params.WEIGHT_COUNT = 0;
+Params.PERTURBATION_RATE = 0;
+Params.THRESHOLD = 0;
+Params.ELITE_COUNT = 0;         //Number of "elite" genomes to sample from.
+Params.ELITE_NUMBER = 0;        //Index of the "elite" ?
+ 
+God.Simulation = function {
+	var pacmen_agents;
+	var pacmen_chromos;
+	var average_fitness;
+	var best_fitness;
+	var pacman_game;
+	var cur_completed;
+	var geneticAlgo;
+	var currentGeneration;
+	
+	function init(){
+		average_fitness = [];
+		best_fitness = [];
+		pacmen_agents = [];
+		for(int i = 0; i < Params.POPULATION; i++){
+			pacmen_agents.append(new Neural.Agent());
+		}
+		var numWeights = pacmen_agents[0].getWeightsCount();
+		
+		geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
+		pacmen_chromos = geneticAlgo.getPopulation();
+		
+		for (i=0; i<Params.POPULATION; i++)
+			pacmen_agents[i].PutWeights(pacmen_chromos[i].weights);
+			
+		pacman_game = new FAST_PACMAN();
+		cur_completed = 0;
+	}
+	
+	function runGeneration(){
+		for(int i = 0; i < Params.POPULATION){
+			pacman_game.startNewGame(pacmen_agents[i],subSimCompleted)
+			
+		}
+	}
+	
+	function subSimCompleted(fitness){
+		pacmen_chromos[cur_completed].fitness = pacmen_agents[cur_completed].fitness;
+		cur_completed++;
+		if(cur_completed == 50){
+			cur_completed = 0;
+			finishGeneration();
+		}
+	}
+	
+	function finishGeneration(){
+		average_fitness.append(geneticAlgo.AverageFitness());
+		best_fitness.append(geneticAlgo.BestFitness());
+		
+		//increment the generation counter
+		currentGeneration++;
+		
+		//run the GA to create a new population
+		pacmen_chromos = geneticAlgo.epoch(pacmen_chromos);
+		
+		//insert the new (hopefully)improved brains back into the sweepers
+		//and reset their positions etc
+		for (int i=0; i<Params.POPULATION; ++i) {
+			pacmen_agents[i].setWeights(pacmen_chromos[i].vecWeights);
+			pacmen_agents[i].reset();
+		}
+	}
+}
 
 var NONE = 4,
     UP = 3,
@@ -799,12 +873,14 @@ var PACMAN = (function () {
         stored       = null;
 
 	function getState(){
-		var ghostPos = [];
-		var pacmanPos = user.position;
+		var inputs = [];
+		inputs.append(user.position["x"]);
+		inputs.append(user.position["y"]);
 		for (var i = 0; i < ghosts.length; i += 1) { 
-            ghostPos.append(ghosts[i].position);
+            inputs.append(ghosts[i].position["x"]);
+			inputs.append(ghosts[i].position["y"]);
         }
-		return {"ghosts" : ghostPos , "pacman" : pacmanPos};
+		return inputs;
 	}
 
     function getTick() { 

@@ -35,16 +35,14 @@ Genomics.Algorithm = function (popSize, mutRate, crossRate, numWeights, maxPertu
         for (i = 0; i < populationSize; i++) {
             var weights = [];
             for (j = 0; j < weightsPerResident; j++)
-                weights.push(random());
+                weights.push(RandomClamped());
             var resident = new Genomics.Genome(weights, 0);
             population.push(resident);
         }
     }
 
-    population = randomizePoplation();
-
     var crossover = function (parentA, parentB, childA, childB) {
-        if (random() > crossOverRate || parentA == parentB) {
+        if (RandFloat() > crossOverRate || parentA == parentB) {
             // TODO 
             fill(parentA, childA);
             fill(parentB, childB);
@@ -65,7 +63,7 @@ Genomics.Algorithm = function (popSize, mutRate, crossRate, numWeights, maxPertu
     var mutate = function (residentWeights) {
         for (i = 0; i < residentWeights.length; i++) {
             if (random() < mutationRate) {
-                residentWeights[i] += random() * maxPertubance;
+                residentWeights[i] += randomClamped() * maxPertubance;
             }
         }
     }
@@ -162,4 +160,6 @@ Genomics.Algorithm = function (popSize, mutRate, crossRate, numWeights, maxPertu
     var getBestFitness = function () {
         return bestFitness;
     }
+	
+	population = randomizePoplation();
 }
