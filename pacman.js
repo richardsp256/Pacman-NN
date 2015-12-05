@@ -798,6 +798,15 @@ var PACMAN = (function () {
         user         = null,
         stored       = null;
 
+	function getState(){
+		var ghostPos = [];
+		var pacmanPos = user.position;
+		for (var i = 0; i < ghosts.length; i += 1) { 
+            ghostPos.append(ghosts[i].position);
+        }
+		return {"ghosts" : ghostPos , "pacman" : pacmanPos};
+	}
+
     function getTick() { 
         return tick;
     };
