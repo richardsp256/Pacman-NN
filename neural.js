@@ -1,3 +1,146 @@
+
+/************************************************
+
+NEURAL NETWORK BEGIN
+
+************************************************/
+
+Neural.Neuron = function (inputCount) {
+    var inputs = inputCount + 1, //Add 1 for bias
+        weights = [];
+
+    var randomWeights = function () {
+        for (i = 0; i < inputs; i++) {
+            weights.push(Math.random());
+            console.log(weights[i])
+        }
+    }
+    randomWeights();
+}
+
+Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
+    var neuronCount = numberOfNeurons,
+        inputCount = inputsPerNeuron,
+        neurons = [];
+
+    var createLayer = function () {
+        for (i = 0; i < neuronCount; i++)
+            neurons.push(new Neural.Neuron(inputCount));
+    }
+
+    createLayer();
+
+    var summarize = function (inputs, bias, response, responseFunction) {
+        var sum = 0,
+            w = 0,
+            ouputs = [];
+        for (i = 0; i < neuronCount - 1; i++) {
+            var neuron = neurons[i];
+            var weightCount = neuron.neuronCount - 1;
+            for (j = 0; j < weightCount; j++) {
+                sum += neuron.weights[j] * inputs[w++];
+            }
+            sum += neuron[weightCount].weights[weightCount] * bias;
+            outputs.push(activationFunction(sum, response));
+        }
+
+        return outputs;
+    }
+
+    var getTotalNeuronCount = function () {
+        return neuronCount * inputCount;
+    }
+}
+
+Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
+    var inputCount,//Number of input neorons
+        outputCount,//Number of output neurons
+        hiddenLayerCount,//Number of hidden layers
+        neuronsPerHiddenLayerCount,//Number of neurons within a hidden layer
+        hiddenLayers = [];//The set of hidden layers
+
+    var bias = biasFloat,
+        response = activationResponseFloat;
+
+    var createNetwork = function () {
+        if (hiddenLayerCount > 0) {
+            hiddenLayers.push(new Neuron.NeuralLayer(neuronsPerHiddenLayerCount, inputCount));
+            for (i = 0; i < hiddenLayerCount - 1; i++) {
+                hiddenLayers.push(new Neuron.NeuralLayer(neuronsPerHiddenLayerCount, neuronsPerHiddenLayerCount));
+            }
+
+            hiddenLayers.push(new Neuron.NeuralLayer(putputCount, neuronsPerHiddenLayerCount));
+        }
+        else {
+            hiddenLayers.push(new Neuron.NeuralLayer(outputCount, neuronsPerHiddenLayerCount));
+        }
+    }
+
+    createNetwork();
+
+    //returns the list of weights held by each neuron in the entire network (for(ijk)layers.neurons.weights)
+    var getWeights = function () {
+        var weights = [];
+        for (i = 0; i < hiddenLayerCount; i++) {
+            var layer = hiddenLayers[i].neurons;
+            for (j = 0; j < neurons.length; j++) {
+                var localWeights = neurons[j].weights;
+                for (k = 0; k < localWeights.length; k++) {
+                    weights.push(localWeights[i]);
+                }
+            }
+        }
+        return weights;
+    }
+
+    var getWeightsCount = function () {
+        var index = 0;
+        for (i = 0; i < hiddenLayerCount; i++) {
+            var layer = hiddenLayers[i].neurons;
+            for (j = 0; j < neurons.length; j++) {
+                index += neurons[j].weights.length;
+            }
+        }
+        return index;
+    }
+
+    var setWeights = function (weights) {
+        var index = 0;
+        for (i = 0; i < hiddenLayerCount; i++) {
+            var layer = hiddenLayers[i].neurons;
+            for (j = 0; j < neurons.length; j++) {
+                var localWeights = neurons[j].weights;
+                for (k = 0; k < localWeights.length; k++) {
+                    localWeights[k] = weights[index++];
+                }
+            }
+        }
+    }
+
+    var update = function (inputs) {
+        var outputs = [],
+            weightIndex = 0;
+
+        if (inputs.length != inputCount) {
+            //return empty
+            return outputs;
+        }
+
+
+        for (i = 0; i < hiddenLayerCount + 1; i++) {
+            if (i > 0)
+                inputs = outputs;//The output from previous iteration becomes new input.
+            outputs = hiddenLayers[i].summarize(inputs, weightIndex, bias, response, sigmoid);
+            weightIndex += hiddenLayers[i].getTotalNeuronCount();
+        }
+    }
+
+    var sigmoid = function (activation, response) {
+        return (1 / (1 + Math.exp(-activation / response)));
+    }
+}
+
+
 /************************************
 
 NEURAL PACMAN CONTROLLER
