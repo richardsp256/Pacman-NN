@@ -17,16 +17,12 @@ Params.PERTURBATION_RATE = 0;
 Params.THRESHOLD = 0;
 Params.ELITE_COUNT = 0;         //Number of "elite" genomes to sample from.
 Params.ELITE_NUMBER = 0;        //Index of the "elite" ?
-<<<<<<< HEAD
+
 var God = {};
-God.Simulation = function() {
-=======
- 
 God.Simulation = function (el, root) {
 	var element = el;
 	var resources = root;
 	
->>>>>>> 80119d11007931f2ad48141a6757f72da1c333da
 	var pacmen_agents;
 	var pacmen_chromos;
 	var average_fitness;
@@ -67,11 +63,9 @@ God.Simulation = function (el, root) {
 	}
 	
 	function runGeneration(){
-<<<<<<< HEAD
-	    for(var i = 0; i < Params.POPULATION;i++){
-=======
+
 		for(var i = 0; i < Params.POPULATION; i++){
->>>>>>> 80119d11007931f2ad48141a6757f72da1c333da
+
 			curIsAlive = true;
 			pacman_game.startNewGame(pacmen_agents[i],subSimCompleted);	
 			while(curIsAlive)
