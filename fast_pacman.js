@@ -75,12 +75,11 @@ var FAST_PACMAN = (function () {
                           Math.pow(ghost.y - user.y, 2))) < 10;
     };
 
-    function update()
-    {
+    function update() {
         console.log("UPDATE:" + tick);
         dt = .01;
         mainLoop(dt);
-    }
+    };
 
     function mainDraw(dt) {
 
