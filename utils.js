@@ -1,8 +1,8 @@
 //returns a random integer between x and y
-function	  RandInt(x,y) {return random()%(y-x+1)+x;}
+function	  RandInt(x,y) {return Math.random()%(y-x+1)+x;}
 
 //returns a random float between zero and 1
-function RandFloat()		   {return random()}
+function RandFloat()		   {return Math.random()}
 
 //returns a random bool
 function   RandBool() {
