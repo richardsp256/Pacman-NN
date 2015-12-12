@@ -78,7 +78,9 @@ var FAST_PACMAN = (function () {
 
     this.update = function()
     {
-        console.log("UPDATE:" + this.tick);
+        if (this.tick % 100 == 0)
+            console.log("UPDATE - Tick: " + this.tick + " Score: " + this.user.theScore());
+
         this.dt = .01;
         this.mainLoop(this.dt);
     }
@@ -102,13 +104,13 @@ var FAST_PACMAN = (function () {
                 if (this.ghosts[i].isVunerable()) {
                     this.ghosts[i].eat();
                     this.eatenCount += 1;
-                    this.nScore = this.eatenCount * 50;
+                    nScore = this.eatenCount * 50;
                     this.user.addScore(nScore);
                     this.setState(EATEN_PAUSE);
-                    this.timerStart = tick;
+                    this.timerStart = this.tick;
                 } else if (this.ghosts[i].isDangerous()) {
                     this.setState(DYING);
-                    this.timerStart = tick;
+                    this.timerStart = this.tick;
                 }
             }
         }
@@ -130,7 +132,14 @@ var FAST_PACMAN = (function () {
             this.setState(PLAYING);
         } else if (this.state === DYING) {
 
-            this.deathCallBack(user.sc);
+            console.log("DEAD - Final Score:" + this.user.theScore());
+            this.deathCallBack(this.user.theScore());
+
+            var millisecondsToWait = 500;
+            setTimeout(function () {
+                // Whatever you want to do after the wait
+            }, millisecondsToWait);
+
             //loseLife();
 
         } else if (this.state === COUNTDOWN) {

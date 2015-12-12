@@ -134,13 +134,13 @@ var NONE = 4,
     COUNTDOWN = 8,
     EATEN_PAUSE = 9,
     DYING = 10,
-    PAC_SPEED = 20,
-    GHOST_SPEED = 20,
-    GHOST_SPEED_SCARED = 5,
-    GHOST_SPEED_HIDDEN = 40
+    PAC_SPEED = 2,
+    GHOST_SPEED = 2,
+    GHOST_SPEED_SCARED = 1,
+    GHOST_SPEED_HIDDEN = 4
     Pacman = {};
 
-Pacman.FPS = 120;
+Pacman.FPS = 30;
 
 Pacman.Ghost = function (game, map, colour) {
 
@@ -153,7 +153,7 @@ Pacman.Ghost = function (game, map, colour) {
     //TODO Make sure this receives dt
     function getNewCoord(dir, current, dt) { 
         
-        var speed  = (isVunerable() ? GHOST_SPEED_SCARED : isHidden() ? GHOST_SPEED_HIDDEN : GHOST_SPEED) * dt,
+        var speed  = (isVunerable() ? GHOST_SPEED_SCARED : isHidden() ? GHOST_SPEED_HIDDEN : GHOST_SPEED), // * dt,
             xSpeed = (dir === LEFT && -speed || dir === RIGHT && speed || 0),
             ySpeed = (dir === DOWN && speed || dir === UP && -speed || 0);
     
@@ -465,8 +465,8 @@ Pacman.User = function (game, map) {
 
     function getNewCoord(dir, current, dt) {   
         return {
-            "x": current.x + (dir === LEFT && -PAC_SPEED || dir === RIGHT && PAC_SPEED || 0) * dt ,
-            "y": current.y + (dir === DOWN && PAC_SPEED || dir === UP    && -PAC_SPEED || 0) * dt
+            "x": current.x + (dir === LEFT && -PAC_SPEED || dir === RIGHT && PAC_SPEED || 0),// * dt ,
+            "y": current.y + (dir === DOWN && PAC_SPEED || dir === UP    && -PAC_SPEED || 0)// * dt
         };
     };
 
