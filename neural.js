@@ -22,12 +22,12 @@ Neural.Neuron = function (inputCount) {
     this.weights = [];
 
     this.randomWeights = function () {
-        for (i = 0; i < inputs; i++) {
-            weights.push(Math.random());
-            console.log(weights[i])
+        for (i = 0; i < this.inputs; i++) {
+            this.weights.push(Math.random());
+            console.log(this.weights[i])
         }
     }
-    randomWeights();
+    this.randomWeights();
 }
 
 Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
@@ -37,7 +37,7 @@ Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
 
     this.createLayer = function () {
         for (i = 0; i < this.neuronCount; i++)
-            neurons.push(new Neural.Neuron(inputCount));
+            this.neurons.push(new Neural.Neuron(this.inputCount));
     }
 
     this.createLayer();
@@ -65,10 +65,10 @@ Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
 }
 
 Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
-    this.inputCount = 0;//Number of input neorons
-    this.outputCount = 0;//Number of output neurons
-    this.hiddenLayerCount = 0;//Number of hidden layers
-    this.neuronsPerHiddenLayerCount = 0;//Number of neurons within a hidden layer
+    this.inputCount = 10;//Number of input neorons
+    this.outputCount = 4;//Number of output neurons
+    this.hiddenLayerCount = 3;//Number of hidden layers
+    this.neuronsPerHiddenLayerCount = 6;//Number of neurons within a hidden layer
     this.hiddenLayers = [];//The set of hidden layers
 
     this.bias = biasFloat;
@@ -77,7 +77,7 @@ Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
     this.createNetwork = function() {
         if (this.hiddenLayerCount > 0) {
             this.hiddenLayers.push(new Neural.NeuralLayer(this.neuronsPerHiddenLayerCount, this.inputCount));
-            for (i = 0; i < hiddenLayerCount - 1; i++) {
+            for (i = 0; i < this.hiddenLayerCount - 1; i++) {
                 this.hiddenLayers.push(new Neural.NeuralLayer(this.neuronsPerHiddenLayerCount, this.neuronsPerHiddenLayerCount));
             }
 
@@ -109,8 +109,8 @@ Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
         var index = 0;
         for (i = 0; i < this.hiddenLayerCount; i++) {
             var layer = this.hiddenLayers[i].neurons;
-            for (j = 0; j < this.neurons.length; j++) {
-                index += this.neurons[j].weights.length;
+            for (j = 0; j < layer.length; j++) {
+                index += layer[j].weights.length;
             }
         }
         return index;
@@ -120,8 +120,8 @@ Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
         var index = 0;
         for (i = 0; i < this.hiddenLayerCount; i++) {
             var layer = this.hiddenLayers[i].neurons;
-            for (j = 0; j < this.neurons.length; j++) {
-                var localWeights = this.neurons[j].weights;
+            for (j = 0; j < layer.length; j++) {
+                var localWeights = layer[j].weights;
                 for (k = 0; k < localWeights.length; k++) {
                     localWeights[k] = weights[index++];
                 }
@@ -194,23 +194,27 @@ Neural.Agent = function () {
         var left = output[0];
         var right = output[1];
         var up = output[2];
-        var down = output[3];
+        var down = output[3]
+		
+		var i = output.indexOf(Math.max.apply(Math, output));;
 
         var movement = NONE;
 
         //arbitrater to give these values meaning
         //Not sure what the output actually looks like.
-        if (left > .5)
+        if (i == 0)
             movement = LEFT;
 
-        if (right > .5)
+        if (i == 1)
             movement = RIGHT;
 
-        if (up > .5)
+        if (i == 2)
             movement = UP;
 
-        if (down > .5)
+        if (i == 3)
             movement = DOWN;
+			
+		return movement;
     }
 
     this.getDirection = function() {

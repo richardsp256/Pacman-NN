@@ -7,16 +7,6 @@
  * fix what happens when a ghost is eaten (should go back to base)
  * do proper ghost mechanics (blinky/wimpy etc)
  */
- 
-Params.BIAS = .1;
-Params.POPULATION = 50;
-Params.MUTATION_RATE = 0;
-Params.CROSS_RATE = 0;
-Params.WEIGHT_COUNT = 0;
-Params.PERTURBATION_RATE = 0;
-Params.THRESHOLD = 0;
-Params.ELITE_COUNT = 0;         //Number of "elite" genomes to sample from.
-Params.ELITE_NUMBER = 0;        //Index of the "elite" ?
 
 var God = {};
 God.Simulation = function (el, root) {
@@ -513,6 +503,8 @@ Pacman.User = function (game, map) {
             nextWhole   = null, 
             oldPosition = position,
             block       = null;
+			
+		due = FAST_PACMAN.user.neuralAgent.update(Pacman.getState());
         
         if (due !== direction) {
             npos = getNewCoord(due, position, dt);
@@ -611,15 +603,6 @@ Pacman.User = function (game, map) {
         
         ctx.fill();    
     };
-
-
-    /// NEURAL NETWORK BEGIN
-    function autoPlay()
-    {
-
-    }
-    /// NEARUEL
-
 
     function draw(ctx) { 
 
