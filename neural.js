@@ -18,10 +18,10 @@ NEURAL NETWORK BEGIN
 ************************************************/
 
 Neural.Neuron = function (inputCount) {
-    var inputs = inputCount + 1, //Add 1 for bias
-        weights = [];
+    this.inputs = inputCount + 1; //Add 1 for bias
+    this.weights = [];
 
-    var randomWeights = function () {
+    this.randomWeights = function () {
         for (i = 0; i < inputs; i++) {
             weights.push(Math.random());
             console.log(weights[i])
@@ -31,23 +31,23 @@ Neural.Neuron = function (inputCount) {
 }
 
 Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
-    var neuronCount = numberOfNeurons,
-        inputCount = inputsPerNeuron,
-        neurons = [];
+    this.neuronCount = numberOfNeurons;
+    this.inputCount = inputsPerNeuron;
+    this.neurons = [];
 
-    var createLayer = function () {
-        for (i = 0; i < neuronCount; i++)
+    this.createLayer = function () {
+        for (i = 0; i < this.neuronCount; i++)
             neurons.push(new Neural.Neuron(inputCount));
     }
 
-    createLayer();
+    this.createLayer();
 
-    var summarize = function (inputs, bias, response, responseFunction) {
+    this.summarize = function (inputs, bias, response, responseFunction) {
         var sum = 0,
             w = 0,
             ouputs = [];
-        for (i = 0; i < neuronCount - 1; i++) {
-            var neuron = neurons[i];
+        for (i = 0; i < this.neuronCount - 1; i++) {
+            var neuron = this.neurons[i];
             var weightCount = neuron.neuronCount - 1;
             for (j = 0; j < weightCount; j++) {
                 sum += neuron.weights[j] * inputs[w++];
@@ -59,44 +59,44 @@ Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
         return outputs;
     }
 
-    var getTotalNeuronCount = function () {
-        return neuronCount * inputCount;
+    this.getTotalNeuronCount = function () {
+        return this.neuronCount * this.inputCount;
     }
 }
 
 Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
-    var inputCount,//Number of input neorons
-        outputCount,//Number of output neurons
-        hiddenLayerCount,//Number of hidden layers
-        neuronsPerHiddenLayerCount,//Number of neurons within a hidden layer
-        hiddenLayers = [];//The set of hidden layers
+    this.inputCount = 0;//Number of input neorons
+    this.outputCount = 0;//Number of output neurons
+    this.hiddenLayerCount = 0;//Number of hidden layers
+    this.neuronsPerHiddenLayerCount = 0;//Number of neurons within a hidden layer
+    this.hiddenLayers = [];//The set of hidden layers
 
-    var bias = biasFloat,
-        response = activationResponseFloat;
+    this.bias = biasFloat;
+    this.response = activationResponseFloat;
 
-    var createNetwork = function () {
-        if (hiddenLayerCount > 0) {
-            hiddenLayers.push(new Neuron.NeuralLayer(neuronsPerHiddenLayerCount, inputCount));
+    this.createNetwork = function() {
+        if (this.hiddenLayerCount > 0) {
+            this.hiddenLayers.push(new Neural.NeuralLayer(this.neuronsPerHiddenLayerCount, this.inputCount));
             for (i = 0; i < hiddenLayerCount - 1; i++) {
-                hiddenLayers.push(new Neuron.NeuralLayer(neuronsPerHiddenLayerCount, neuronsPerHiddenLayerCount));
+                this.hiddenLayers.push(new Neural.NeuralLayer(this.neuronsPerHiddenLayerCount, this.neuronsPerHiddenLayerCount));
             }
 
-            hiddenLayers.push(new Neuron.NeuralLayer(putputCount, neuronsPerHiddenLayerCount));
+            this.hiddenLayers.push(new Neural.NeuralLayer(this.putputCount, this.neuronsPerHiddenLayerCount));
         }
         else {
-            hiddenLayers.push(new Neuron.NeuralLayer(outputCount, neuronsPerHiddenLayerCount));
+            this.hiddenLayers.push(new Neural.NeuralLayer(this.outputCount, this.neuronsPerHiddenLayerCount));
         }
     }
 
-    createNetwork();
+    this.createNetwork();
 
     //returns the list of weights held by each neuron in the entire network (for(ijk)layers.neurons.weights)
-    var getWeights = function () {
+    this.getWeights = function() {
         var weights = [];
-        for (i = 0; i < hiddenLayerCount; i++) {
-            var layer = hiddenLayers[i].neurons;
-            for (j = 0; j < neurons.length; j++) {
-                var localWeights = neurons[j].weights;
+        for (i = 0; i < this.hiddenLayerCount; i++) {
+            var layer = this.hiddenLayers[i].neurons;
+            for (j = 0; j < this.neurons.length; j++) {
+                var localWeights = this.neurons[j].weights;
                 for (k = 0; k < localWeights.length; k++) {
                     weights.push(localWeights[i]);
                 }
@@ -105,23 +105,23 @@ Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
         return weights;
     }
 
-    var getWeightsCount = function () {
+    this.getWeightsCount = function () {
         var index = 0;
-        for (i = 0; i < hiddenLayerCount; i++) {
-            var layer = hiddenLayers[i].neurons;
-            for (j = 0; j < neurons.length; j++) {
-                index += neurons[j].weights.length;
+        for (i = 0; i < this.hiddenLayerCount; i++) {
+            var layer = this.hiddenLayers[i].neurons;
+            for (j = 0; j < this.neurons.length; j++) {
+                index += this.neurons[j].weights.length;
             }
         }
         return index;
     }
 
-    var setWeights = function (weights) {
+    this.setWeights = function (weights) {
         var index = 0;
-        for (i = 0; i < hiddenLayerCount; i++) {
-            var layer = hiddenLayers[i].neurons;
-            for (j = 0; j < neurons.length; j++) {
-                var localWeights = neurons[j].weights;
+        for (i = 0; i < this.hiddenLayerCount; i++) {
+            var layer = this.hiddenLayers[i].neurons;
+            for (j = 0; j < this.neurons.length; j++) {
+                var localWeights = this.neurons[j].weights;
                 for (k = 0; k < localWeights.length; k++) {
                     localWeights[k] = weights[index++];
                 }
@@ -129,26 +129,26 @@ Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
         }
     }
 
-    var update = function (inputs) {
+    this.update = function(inputs) {
         var outputs = [],
             weightIndex = 0;
 
-        if (inputs.length != inputCount) {
+        if (inputs.length != this.inputCount) {
             //return empty
             return outputs;
         }
 
 
-        for (i = 0; i < hiddenLayerCount + 1; i++) {
+        for (i = 0; i < this.hiddenLayerCount + 1; i++) {
             if (i > 0)
                 inputs = outputs;//The output from previous iteration becomes new input.
-            outputs = hiddenLayers[i].summarize(inputs, weightIndex, bias, response, sigmoid);
-            weightIndex += hiddenLayers[i].getTotalNeuronCount();
+            outputs = this.hiddenLayers[i].summarize(inputs, weightIndex, bias, response, sigmoid);
+            weightIndex += this.hiddenLayers[i].getTotalNeuronCount();
         }
 		return outputs;
     }
 
-    var sigmoid = function (activation, response) {
+    this.sigmoid = function(activation, response) {
         return (1 / (1 + Math.exp(-activation / response)));
     }
 }
@@ -161,13 +161,13 @@ NEURAL PACMAN CONTROLLER
 ************************************/
 
 Neural.Agent = function () {
-    var neuralNetwork = new Neural.NeuralNetwork(Params.BIAS, Params.THRESHOLD),
-        position = { x: 0, y: 0 },
-        direction = RIGHT,
-        output_direction_x = 0,
-        output_direction_y = 0,
-        output_move = { x: 0, y: 0 },
-        fitness = 0;
+    this.neuralNetwork = new Neural.NeuralNetwork(Params.BIAS, Params.THRESHOLD);
+    this.position = { x: 0, y: 0 };
+    this.direction = RIGHT;
+    this.output_direction_x = 0;
+    this.output_direction_y = 0;
+    this.output_move = { x: 0, y: 0 };
+     this.fitness = 0;
 
     //TODO : Track the ghosts.
     //       Track the pellets.
@@ -175,7 +175,7 @@ Neural.Agent = function () {
     //
     //       Store this information in "World"
 
-    var update = function (inputs) {
+    this.update = function (inputs) {
 
         //TODO add pacmans current location.
         //     add each ghost location.
@@ -185,7 +185,7 @@ Neural.Agent = function () {
         //i.e. world.getPacmanPosition
 		
 
-        var outputs = neuralNetwork.update(inputs);
+        var outputs = this.neuralNetwork.update(inputs);
         if (outputs < Params.OUTPUT_COUNT)
             return false;
 
@@ -213,46 +213,46 @@ Neural.Agent = function () {
             movement = DOWN;
     }
 
-    var getDirection = function () {
-        return getAppropriateDirection(position);
+    this.getDirection = function() {
+        return this.getAppropriateDirection(position);
     }
 
-    var getAppropriateDirection = function (currentPosition, targetPosition) {
+    this.getAppropriateDirection = function (currentPosition, targetPosition) {
         //TODO Consult the neural network.
 
         return LEFT;
     }
 
-    var getClosetPellet = function (world) {
+    this.getClosetPellet = function (world) {
 
     }
 
-    var getClosestGhost = function (world) {
+    this.getClosestGhost = function (world) {
 
     }
 
-    var getClosestPowerPellet = function (world) {
+    this.getClosestPowerPellet = function (world) {
 
     }
 
-    var reset = function () {
-        fitness = 0;
-        position.x = 0;
-        position.y = 0;
-        direction = RIGHT;
+    this.reset = function () {
+        this.fitness = 0;
+        this.position.x = 0;
+        this.position.y = 0;
+        this.direction = RIGHT;
     }
 
-    var getPosition = function () { return position; }
+    this.getPosition = function (){ return this.position; }
 
-    var getFitness = function () { return fitness; }
+    this.getFitness = function () { return this.fitness; }
 
-    var incrementFitness = function () { fitness++; }
+    this.incrementFitness = function() { this.fitness++; }
 
-    var setWeights = function (weights) {
-        neuralNetwork.setWeights(weights);
+    this.setWeights = function (weights) {
+        this.neuralNetwork.setWeights(weights);
     }
-
-    var getWeightsCount = function () {
-        return neuralNetwork.getWeightsCount();
+   
+    this.getWeightsCount = function () {
+        return this.neuralNetwork.getWeightsCount();
     }
 }

@@ -1,166 +1,167 @@
 var FAST_PACMAN = (function () {
 
-    var state = WAITING,
-        audio = null,
-        ghosts = [],
-        ghostSpecs = ["#00FFDE", "#FF0000", "#FFB8DE", "#FFB847"],
-        eatenCount = 0,
-        level = 0,
-        tick = 0,
-        ghostPos, userPos,
-        stateChanged = true,
-        timerStart = null,
-        lastTime = 0,
-        ctx = null,
-        timer = null,
-        map = null,
-        user = null,
-        stored = null,
-        deathCallBack = null;
+    this.state = WAITING;
+    this.audio = null;
+    this.ghosts = [];
+    this.ghostSpecs = ["#00FFDE", "#FF0000", "#FFB8DE", "#FFB847"];
+    this.eatenCount = 0;
+    this.level = 0;
+    this.tick = 0;
+    this.ghostPos = { x: 0, y: 0 };
+    this.userPos = { x: 0, y: 0 };
+    this.stateChanged = true;
+    this.timerStart = null;
+    this.lastTime = 0;
+    this.ctx = null;
+    this.timer = null;
+    this.map = null;
+    this.user = null;
+    this.stored = null;
+    this.deathCallBack = null;
 
-    function getTick() {
-        return tick;
+    this.getTick = function() {
+        return this.tick;
     };
 
-    function startLevel() {
-        user.resetPosition();
-        for (var i = 0; i < ghosts.length; i += 1) {
-            ghosts[i].reset();
+    this.startLevel = function () {
+        this.user.resetPosition();
+        for (var i = 0; i < this.ghosts.length; i += 1) {
+            this.ghosts[i].reset();
         }
 
-        timerStart = tick;
-        setState(COUNTDOWN);
+        this.timerStart = this.tick;
+        this.setState(COUNTDOWN);
     }
 
-    function startNewGame(neuralAgent, onDeath) {
+    this.startNewGame = function(neuralAgent, onDeath) {
 
         console.log("START NEW");
 
-        setState(WAITING);
-        level = 1;
-        user.neuralAgent = neuralAgent
-        deathCallBack = onDeath;
-        user.reset();
-        map.reset();
-        startLevel();
+        this.setState(WAITING);
+        this.level = 1;
+        this.user.neuralAgent = neuralAgent
+        this.deathCallBack = onDeath;
+        this.user.reset();
+        this.map.reset();
+        this.startLevel();
     }
     
-    function keyDown(e) {
+    this.keyDown = function(e) {
         if (e.keyCode === KEY.N) {
-            startNewGame();
+            this.startNewGame();
         } else if (e.keyCode === KEY.P) {
-            stored = state;
-            setState(PAUSE);
+            this.stored = state;
+            this.setState(PAUSE);
         } else if (state !== PAUSE) {
-            return user.keyDown(e);
+            return this.user.keyDown(e);
         }
         return true;
     }
 
-    function loseLife() {
-        setState(WAITING);
-        user.loseLife();
-        if (user.getLives() > 0) {
-            startLevel();
+    this.loseLife = function () {
+        this.setState(WAITING);
+        this.user.loseLife();
+        if (this.user.getLives() > 0) {
+            this.startLevel();
         }
     }
 
-    function setState(nState) {
-        state = nState;
-        stateChanged = true;
+    this.setState = function(nState) {
+        this.state = nState;
+        this.stateChanged = true;
     };
 
-    function collided(user, ghost) {
+    this.collided = function(user, ghost) {
         return (Math.sqrt(Math.pow(ghost.x - user.x, 2) +
                           Math.pow(ghost.y - user.y, 2))) < 10;
     };
 
-    function update()
+    this.update = function()
     {
-        console.log("UPDATE:" + tick);
-        dt = .01;
-        mainLoop(dt);
+        console.log("UPDATE:" + this.tick);
+        this.dt = .01;
+        this.mainLoop(this.dt);
     }
 
-    function mainDraw(dt) {
+    this.mainDraw = function(dt) {
 
         var diff, u, i, len, nScore;
 
         ghostPos = [];
 
-        for (i = 0, len = ghosts.length; i < len; i += 1) {
-            ghostPos.push(ghosts[i].move(ctx));
+        for (i = 0, len = this.ghosts.length; i < len; i += 1) {
+            ghostPos.push(this.ghosts[i].move(this.ctx));
         }
         
-        u = user.move(ctx, dt);
+        u = this.user.move(this.ctx, this.dt);
 
-        userPos = u["new"];
+        this.userPos = u["new"];
 
-        for (i = 0, len = ghosts.length; i < len; i += 1) {
-            if (collided(userPos, ghostPos[i]["new"])) {
-                if (ghosts[i].isVunerable()) {
-                    ghosts[i].eat();
-                    eatenCount += 1;
-                    nScore = eatenCount * 50;
-                    user.addScore(nScore);
-                    setState(EATEN_PAUSE);
-                    timerStart = tick;
-                } else if (ghosts[i].isDangerous()) {
-                    setState(DYING);
-                    timerStart = tick;
+        for (i = 0, len = this.ghosts.length; i < len; i += 1) {
+            if (this.collided(this.userPos, ghostPos[i]["new"])) {
+                if (this.ghosts[i].isVunerable()) {
+                    this.ghosts[i].eat();
+                    this.eatenCount += 1;
+                    this.nScore = this.eatenCount * 50;
+                    this.user.addScore(nScore);
+                    this.setState(EATEN_PAUSE);
+                    this.timerStart = tick;
+                } else if (this.ghosts[i].isDangerous()) {
+                    this.setState(DYING);
+                    this.timerStart = tick;
                 }
             }
         }
     };
 
-    function mainLoop() {
+    this.mainLoop = function() {
 
         var diff;
 
-        if (state !== PAUSE) {
-            ++tick;
+        if (this.state !== PAUSE) {
+            this.tick++;
         }
 
-        if (state === PLAYING) {
-            mainDraw();
-        } else if (state === WAITING && stateChanged) {
-            stateChanged = false;
-        } else if (state === EATEN_PAUSE) {
-            setState(PLAYING);
-        } else if (state === DYING) {
+        if (this.state === PLAYING) {
+            this.mainDraw();
+        } else if (this.state === WAITING && this.stateChanged) {
+            this.stateChanged = false;
+        } else if (this.state === EATEN_PAUSE) {
+            this.setState(PLAYING);
+        } else if (this.state === DYING) {
 
-            deathCallBack(user.sc);
+            this.deathCallBack(user.sc);
             //loseLife();
 
-        } else if (state === COUNTDOWN) {
-            setState(PLAYING);
+        } else if (this.state === COUNTDOWN) {
+            this.setState(PLAYING);
         }
     }
 
-    function eatenPill() {
-        timerStart = tick;
-        eatenCount = 0;
-        for (i = 0; i < ghosts.length; i += 1) {
-            ghosts[i].makeEatable(ctx);
+    this.eatenPill = function() {
+        this.timerStart = this.tick;
+        this.eatenCount = 0;
+        for (i = 0; i < this.ghosts.length; i += 1) {
+            this.ghosts[i].makeEatable(this.ctx);
         }
     };
 
-    function completedLevel() {
-        setState(WAITING);
-        level += 1;
-        map.reset();
-        user.newLevel();
-        startLevel();
+    this.completedLevel = function() {
+        this.setState(WAITING);
+        this.level += 1;
+        this.map.reset();
+        this.user.newLevel();
+        this.startLevel();
     };
 
-    function keyPress(e) {
-        if (state !== WAITING && state !== PAUSE) {
+    this.keyPress = function(e) {
+        if (this.state !== WAITING && state !== PAUSE) {
             e.preventDefault();
             e.stopPropagation();
         }
     };
 
-    function init(wrapper, root) {
+    this.init = function(wrapper, root) {
         console.log("INIT");
         var i, len, ghost,
             blockSize = wrapper.offsetWidth / 19,
@@ -171,18 +172,18 @@ var FAST_PACMAN = (function () {
 
         wrapper.appendChild(canvas);
 
-        ctx = canvas.getContext('2d');
+        this.ctx = canvas.getContext('2d');
 
-        map = new Pacman.Map(blockSize);
+        this.map = new Pacman.Map(blockSize);
 
-        user = new Pacman.User({
-            "completedLevel": completedLevel,
-            "eatenPill": eatenPill
-        }, map);
+        this.user = new Pacman.User({
+            "completedLevel": this.completedLevel,
+            "eatenPill": this.eatenPill
+        }, this.map);
 
-        for (i = 0, len = ghostSpecs.length; i < len; i += 1) {
-            ghost = new Pacman.Ghost({ "getTick": getTick }, map, ghostSpecs[i]);
-            ghosts.push(ghost);
+        for (i = 0, len = this.ghostSpecs.length; i < len; i += 1) {
+            var ghost = new Pacman.Ghost({ "getTick": this.getTick }, this.map, this.ghostSpecs[i]);
+            this.ghosts.push(ghost);
         }
     };
 });

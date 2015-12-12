@@ -41,8 +41,11 @@ God.Simulation = function (el, root) {
 		best_fitness = [];
 		pacmen_agents = [];
 		for(var i = 0; i < Params.POPULATION; i++){
-			pacmen_agents.append(new Neural.Agent());
+			pacmen_agents.push(new Neural.Agent());
 		}
+		
+		console.log(pacmen_agents);
+		console.log(pacmen_agents[0]);
 		var numWeights = pacmen_agents[0].getWeightsCount();
 		
 		if(!loadBest){
@@ -51,7 +54,7 @@ God.Simulation = function (el, root) {
 			pacmen_chromos = geneticAlgo.getPopulation();
 			
 			for (i=0; i<Params.POPULATION; i++)
-				pacmen_agents[i].PutWeights(pacmen_chromos[i].weights);
+				pacmen_agents[i].neuralNetwork.setWeights(pacmen_chromos[i].weights);
 			
 		} else {
 			loadBest();
