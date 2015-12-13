@@ -19,6 +19,17 @@ var FAST_PACMAN = (function () {
     this.stored = null;
     this.deathCallBack = null;
 
+    this.getState = function() {
+        var inputs = [];
+        inputs.push(this.user.position["x"]);
+        inputs.push(this.user.position["y"]);
+        for (var i = 0; i < this.ghosts.length; i += 1) {
+            inputs.push(this.ghosts[i].position["x"]);
+            inputs.push(this.ghosts[i].position["y"]);
+        }
+        return inputs;
+    };
+
     this.getTick = function() {
         return this.tick;
     };
@@ -95,7 +106,7 @@ var FAST_PACMAN = (function () {
             ghostPos.push(this.ghosts[i].move(this.ctx));
         }
         
-        u = this.user.move(this.ctx, this.dt);
+        u = this.user.move(this, this.ctx, this.dt);
 
         this.userPos = u["new"];
 
@@ -185,11 +196,16 @@ var FAST_PACMAN = (function () {
 
         this.map = new Pacman.Map(blockSize);
 
-        this.user = new Pacman.User({
+        var game = {
             "completedLevel": this.completedLevel,
-            "eatenPill": this.eatenPill
-        }, this.map);
+            "eatenPill": this.eatenPill,
+            "getState" : this.getState
+        }
 
+        console.log("USER: " + this.user);
+        this.user = new Pacman.User(game, this.map);
+        console.log("USER: " + this.user);
+        this.user.reset();
         for (i = 0, len = this.ghostSpecs.length; i < len; i += 1) {
             var ghost = new Pacman.Ghost({ "getTick": this.getTick }, this.map, this.ghostSpecs[i]);
             this.ghosts.push(ghost);

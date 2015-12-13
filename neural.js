@@ -24,7 +24,6 @@ Neural.Neuron = function (inputCount) {
     this.randomWeights = function () {
         for (i = 0; i < this.inputs; i++) {
             this.weights.push(Math.random());
-            console.log(this.weights[i])
         }
     }
     this.randomWeights();
@@ -45,14 +44,18 @@ Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
     this.summarize = function (inputs, bias, response, responseFunction) {
         var sum = 0,
             w = 0,
-            ouputs = [];
+            outputs = [];
+        console.log("Neurons: " + this.neurons.length);
+        console.log(this.neurons);
         for (i = 0; i < this.neuronCount - 1; i++) {
             var neuron = this.neurons[i];
             var weightCount = neuron.neuronCount - 1;
             for (j = 0; j < weightCount; j++) {
                 sum += neuron.weights[j] * inputs[w++];
             }
-            sum += neuron[weightCount].weights[weightCount] * bias;
+
+            //add bias
+            //sum += neuron[weightCount].weights[weightCount] * bias;
             outputs.push(responseFunction(sum, response));
         }
 
@@ -142,7 +145,7 @@ Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
         for (i = 0; i < this.hiddenLayerCount + 1; i++) {
             if (i > 0)
                 inputs = outputs;//The output from previous iteration becomes new input.
-            outputs = this.hiddenLayers[i].summarize(inputs, weightIndex, bias, response, sigmoid);
+            outputs = this.hiddenLayers[i].summarize(inputs, /*weightIndex,*/ this.bias, this.response, this.sigmoid);
             weightIndex += this.hiddenLayers[i].getTotalNeuronCount();
         }
 		return outputs;

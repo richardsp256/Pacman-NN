@@ -34,25 +34,30 @@ God.Simulation = function (el, root) {
 			pacmen_agents.push(new Neural.Agent());
 		}
 		
-		console.log(pacmen_agents);
-		console.log(pacmen_agents[0]);
 		var numWeights = pacmen_agents[0].getWeightsCount();
-		
+		console.log("Num Weights: " + numWeights);
 		if(!loadBest){
 		
 			geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
 			pacmen_chromos = geneticAlgo.getPopulation();
-			
+
 			for (i=0; i<Params.POPULATION; i++)
 				pacmen_agents[i].neuralNetwork.setWeights(pacmen_chromos[i].weights);
 			
 		} else {
 			loadBest();
 		}
-			
-		pacman_game = new FAST_PACMAN();
-		pacman_game.init(element,resources);
+
 		cur_completed = 0;
+
+		console.log("SIM: new Fast_Pacman()");
+		pacman_game = new FAST_PACMAN();
+
+		console.log("SIM: pacman_game.init(...)");
+		pacman_game.init(element, resources);
+
+		console.log("SIM: main_loop(...)");
+		mainLoop();
 	}
 	
 	function runGeneration(){
@@ -110,7 +115,7 @@ God.Simulation = function (el, root) {
 	}
 	
 	init(0);
-	mainLoop();
+	//mainLoop();
 }
 
 var NONE = 4,
@@ -134,29 +139,32 @@ Pacman.FPS = 30;
 
 Pacman.Ghost = function (game, map, colour) {
 
-    var position  = null,
-        direction = null,
-        eatable   = null,
-        eaten     = null,
-        due       = null;
+    this.position = null;
+    this.direction = null;
+    this.eatable = null;
+    this.eaten = null;
+    this.due = null;
+    this.game = game;
+    this.map = map;
+    this.colour = colour;
     
     //TODO Make sure this receives dt
-    function getNewCoord(dir, current, dt) { 
+    this.getNewCoord = function (dir, current, dt) {
         
-        var speed  = (isVunerable() ? GHOST_SPEED_SCARED : isHidden() ? GHOST_SPEED_HIDDEN : GHOST_SPEED), // * dt,
+        var speed  = (this.isVunerable() ? GHOST_SPEED_SCARED : this.isHidden() ? GHOST_SPEED_HIDDEN : GHOST_SPEED), // * dt,
             xSpeed = (dir === LEFT && -speed || dir === RIGHT && speed || 0),
             ySpeed = (dir === DOWN && speed || dir === UP && -speed || 0);
     
         return {
-            "x": addBounded(current.x, xSpeed),
-            "y": addBounded(current.y, ySpeed)
+            "x": this.addBounded(current.x, xSpeed),
+            "y": this.addBounded(current.y, ySpeed)
         };
     };
 
     /* Collision detection(walls) is done when a ghost lands on an
      * exact block, make sure they dont skip over it 
      */
-    function addBounded(x1, x2) { 
+    this.addBounded = function (x1, x2) { 
         var rem    = x1 % 10, 
             result = rem + x2;
         if (rem !== 0 && result > 10) {
@@ -167,57 +175,57 @@ Pacman.Ghost = function (game, map, colour) {
         return x1 + x2;
     };
     
-    function isVunerable() { 
-        return eatable !== null;
+    this.isVunerable = function () { 
+        return this.eatable !== null;
     };
     
-    function isDangerous() {
-        return eaten === null;
+    this.isDangerous = function () {
+        return this.eaten === null;
     };
 
-    function isHidden() { 
-        return eatable === null && eaten !== null;
+    this.isHidden = function () { 
+        return this.eatable === null && this.eaten !== null;
     };
     
-    function getRandomDirection() {
-        var moves = (direction === LEFT || direction === RIGHT) 
+    this.getRandomDirection = function () {
+        var moves = (this.direction === LEFT || this.direction === RIGHT) 
             ? [UP, DOWN] : [LEFT, RIGHT];
         return moves[Math.floor(Math.random() * 2)];
     };
     
-    function reset() {
-        eaten = null;
-        eatable = null;
-        position = {"x": 90, "y": 80};
-        direction = getRandomDirection();
-        due = getRandomDirection();
+    this.reset = function() {
+        this.eaten = null;
+        this.eatable = null;
+        this.position = {"x": 90, "y": 80};
+        this.direction = this.getRandomDirection();
+        this.due = this.getRandomDirection();
     };
     
-    function onWholeSquare(x) {
+    this.onWholeSquare = function(x) {
         return x % 10 === 0;
     };
     
-    function oppositeDirection(dir) { 
+    this.oppositeDirection = function(dir) { 
         return dir === LEFT && RIGHT ||
             dir === RIGHT && LEFT ||
             dir === UP && DOWN || UP;
     };
 
-    function makeEatable() {
-        direction = oppositeDirection(direction);
-        eatable = game.getTick();
+    this.makeEatable = function() {
+        this.direction = this.oppositeDirection(direction);
+        this.eatable = this.game.getTick();
     };
 
-    function eat() { 
-        eatable = null;
-        eaten = game.getTick();
+    this.eat = function() { 
+        this.eatable = null;
+        this.eaten = this.game.getTick();
     };
 
-    function pointToCoord(x) {
+    this.pointToCoord = function(x) {
         return Math.round(x / 10);
     };
 
-    function nextSquare(x, dir) {
+    this.nextSquare = function(x, dir) {
         var rem = x % 10;
         if (rem === 0) { 
             return x; 
@@ -228,49 +236,49 @@ Pacman.Ghost = function (game, map, colour) {
         }
     };
 
-    function onGridSquare(pos) {
-        return onWholeSquare(pos.y) && onWholeSquare(pos.x);
+    this.onGridSquare = function(pos) {
+        return this.onWholeSquare(pos.y) && this.onWholeSquare(pos.x);
     };
 
-    function secondsAgo(tick) { 
-        return (game.getTick() - tick) / Pacman.FPS;
+    this.secondsAgo = function(tick) { 
+        return (this.game.getTick() - tick) / Pacman.FPS;
     };
 
-    function getColour() { 
-        if (eatable) { 
-            if (secondsAgo(eatable) > 5) { 
-                return game.getTick() % 20 > 10 ? "#FFFFFF" : "#0000BB";
+    this.getColour = function() { 
+        if (this.eatable) { 
+            if (this.secondsAgo(this.eatable) > 5) { 
+                return this.game.getTick() % 20 > 10 ? "#FFFFFF" : "#0000BB";
             } else { 
                 return "#0000BB";
             }
         } else if(eaten) { 
             return "#222";
         } 
-        return colour;
+        return this.colour;
     };
 
-    function draw(ctx) {
+    this.draw = function(ctx) {
   
-        var s    = map.blockSize, 
-            top  = (position.y/10) * s,
-            left = (position.x/10) * s;
+        var s    = this.map.blockSize, 
+            top  = (this.position.y/10) * s,
+            left = (this.position.x/10) * s;
     
-        if (eatable && secondsAgo(eatable) > 8) {
-            eatable = null;
+        if (this.eatable && this.secondsAgo(this.eatable) > 8) {
+            this.eatable = null;
         }
         
-        if (eaten && secondsAgo(eaten) > 3) { 
-            eaten = null;
+        if (this.eaten && this.secondsAgo(this.eaten) > 3) { 
+            this.eaten = null;
         }
         
         var tl = left + s;
         var base = top + s - 3;
         var inc = s / 10;
 
-        var high = game.getTick() % 10 > 5 ? 3  : -3;
-        var low  = game.getTick() % 10 > 5 ? -3 : 3;
+        var high = this.game.getTick() % 10 > 5 ? 3  : -3;
+        var low  = this.game.getTick() % 10 > 5 ? -3 : 3;
 
-        ctx.fillStyle = getColour();
+        ctx.fillStyle = this.getColour();
         ctx.beginPath();
 
         ctx.moveTo(left, base);
@@ -313,70 +321,70 @@ Pacman.Ghost = function (game, map, colour) {
 
     };
 
-    function pane(pos) {
+    this.pane = function(pos) {
 
-        if (pos.y === 100 && pos.x >= 190 && direction === RIGHT) {
+        if (pos.y === 100 && pos.x >= 190 && this.direction === RIGHT) {
             return {"y": 100, "x": -10};
         }
         
-        if (pos.y === 100 && pos.x <= -10 && direction === LEFT) {
-            return position = {"y": 100, "x": 190};
+        if (pos.y === 100 && pos.x <= -10 && this.direction === LEFT) {
+            return this.position = {"y": 100, "x": 190};
         }
 
         return false;
     };
     
     //MOVEMENT FUNCTION TODO SEND dt
-    function move(ctx, dt) {
+    this.move = function(ctx, dt) {
         
-        var oldPos = position,
-            onGrid = onGridSquare(position),
+        var oldPos = this.position,
+            onGrid = this.onGridSquare(this.position),
             npos   = null;
         
-        if (due !== direction) {
+        if (this.due !== this.direction) {
             
-            npos = getNewCoord(due, position,dt );
+            npos = this.getNewCoord(this.due, this.position, dt );
             
             if (onGrid &&
-                map.isFloorSpace({
-                    "y":pointToCoord(nextSquare(npos.y, due)),
-                    "x":pointToCoord(nextSquare(npos.x, due))})) {
-                direction = due;
+                this.map.isFloorSpace({
+                    "y":this.pointToCoord(this.nextSquare(npos.y, this.due)),
+                    "x":this.pointToCoord(this.nextSquare(npos.x, this.due))})) {
+                this.direction = this.due;
             } else {
                 npos = null;
             }
         }
         
         if (npos === null) {
-            npos = getNewCoord(direction, position, dt);
+            npos = this.getNewCoord(this.direction, this.position, dt);
         }
         
         if (onGrid &&
-            map.isWallSpace({
-                "y" : pointToCoord(nextSquare(npos.y, direction)),
-                "x" : pointToCoord(nextSquare(npos.x, direction))
+            this.map.isWallSpace({
+                "y" : this.pointToCoord(this.nextSquare(npos.y, this.direction)),
+                "x" : this.pointToCoord(this.nextSquare(npos.x, this.direction))
             })) {
             
-            due = getRandomDirection();            
-            return move(ctx);
+            this.due = this.getRandomDirection();            
+            return this.move(ctx);
         }
 
-        position = npos;        
+        this.position = npos;        
         
-        var tmp = pane(position);
+        var tmp = this.pane(this.position);
         if (tmp) { 
-            position = tmp;
+            this.position = tmp;
         }
         
-        due = getRandomDirection();
+        this.due = this.getRandomDirection();
         
         return {
-            "new" : position,
+            "new" : this.position,
             "old" : oldPos
         };
     };
     
-    return {
+    /*return {
         "eat"         : eat,
         "isVunerable" : isVunerable,
         "isDangerous" : isDangerous,
@@ -384,68 +392,70 @@ Pacman.Ghost = function (game, map, colour) {
         "reset"       : reset,
         "move"        : move,
         "draw"        : draw
-    };
+    };*/
 };
 
-Pacman.User = function (game, map) {
+Pacman.User = function (pacgame, map) {
     
-    var position  = null,
-        direction = null,
-        eaten     = null,
-        due       = null, 
-        lives     = null,
-        score     = 5,
-        keyMap    = {};
-    
-    keyMap[KEY.ARROW_LEFT]  = LEFT;
-    keyMap[KEY.ARROW_UP]    = UP;
-    keyMap[KEY.ARROW_RIGHT] = RIGHT;
-    keyMap[KEY.ARROW_DOWN]  = DOWN;
+    this.position = { "x": 90, "y": 120 };
+    this.direction = null;
+    this.eaten = null;
+    this.due = null;
+    this.lives = null;
+    this.score = 5;
+    this.keyMap = {};
+    this.neuralAgent = {};
+    this.game = pacgame;
 
-    function addScore(nScore) { 
-        score += nScore;
-        if (score >= 10000 && score - nScore < 10000) { 
+    this.keyMap[KEY.ARROW_LEFT]  = LEFT;
+    this.keyMap[KEY.ARROW_UP]    = UP;
+    this.keyMap[KEY.ARROW_RIGHT] = RIGHT;
+    this.keyMap[KEY.ARROW_DOWN]  = DOWN;
+
+    this.addScore = function (nScore) {
+        this.score += nScore;
+        if (this.score >= 10000 && this.score - nScore < 10000) {
             lives += 1;
         }
     };
 
-    function theScore() { 
-        return score;
+    this.theScore = function () {
+        return this.score;
     };
 
-    function loseLife() { 
-        lives -= 1;
+    this.loseLife = function() { 
+        this.lives -= 1;
     };
 
-    function getLives() {
-        return lives;
+    this.getLives = function() {
+        return this.lives;
     };
 
-    function initUser() {
-        score = 0;
-        lives = 3;
-        newLevel();
-    }
-    
-    function newLevel() {
-        resetPosition();
-        eaten = 0;
+    this.initUser = function () {
+        this.score = 0;
+        this.lives = 3;
+        this.newLevel();
     };
     
-    function resetPosition() {
-        position = {"x": 90, "y": 120};
-        direction = LEFT;
-        due = LEFT;
+    this.newLevel = function() {
+        this.resetPosition();
+        this.eaten = 0;
     };
     
-    function reset() {
-        initUser();
-        resetPosition();
+    this.resetPosition = function() {
+        this.position = {"x": 90, "y": 120};
+        this.direction = LEFT;
+        this.due = LEFT;
+    };
+    
+     this.reset = function(){
+        this.initUser();
+        this.resetPosition();
     };        
     
-    function keyDown(e) {
+    this.keyDown = function(e) {
         if (typeof keyMap[e.keyCode] !== "undefined") { 
-            due = keyMap[e.keyCode];
+            this.due = keyMap[e.keyCode];
             e.preventDefault();
             e.stopPropagation();
             return false;
@@ -453,22 +463,22 @@ Pacman.User = function (game, map) {
         return true;
 	};
 
-    function getNewCoord(dir, current, dt) {   
+    this.getNewCoord = function(dir, current, dt) {   
         return {
             "x": current.x + (dir === LEFT && -PAC_SPEED || dir === RIGHT && PAC_SPEED || 0),// * dt ,
             "y": current.y + (dir === DOWN && PAC_SPEED || dir === UP    && -PAC_SPEED || 0)// * dt
         };
     };
 
-    function onWholeSquare(x) {
+    this.onWholeSquare = function(x) {
         return x % 10 === 0;
     };
 
-    function pointToCoord(x) {
+    this.pointToCoord = function(x) {
         return Math.round(x/10);
     };
     
-    function nextSquare(x, dir) {
+    this.nextSquare = function(x, dir) {
         var rem = x % 10;
         if (rem === 0) { 
             return x; 
@@ -479,98 +489,98 @@ Pacman.User = function (game, map) {
         }
     };
 
-    function next(pos, dir) {
+    this.next = function(pos, dir) {
         return {
             "y" : pointToCoord(nextSquare(pos.y, dir)),
             "x" : pointToCoord(nextSquare(pos.x, dir)),
         };                               
     };
 
-    function onGridSquare(pos) {
-        return onWholeSquare(pos.y) && onWholeSquare(pos.x);
+    this.onGridSquare = function (pos) {
+        return this.onWholeSquare(pos.y) && this.onWholeSquare(pos.x);
     };
 
-    function isOnSamePlane(due, dir) { 
+    this.isOnSamePlane = function (due, dir) {
         return ((due === LEFT || due === RIGHT) && 
                 (dir === LEFT || dir === RIGHT)) || 
             ((due === UP || due === DOWN) && 
              (dir === UP || dir === DOWN));
     };
 
-    function move(ctx, dt) {
+    this.move = function (game, ctx, dt) {
         
         var npos        = null, 
             nextWhole   = null, 
-            oldPosition = position,
+            oldPosition = this.position,
             block       = null;
 			
-		due = FAST_PACMAN.user.neuralAgent.update(Pacman.getState());
+		this.due = this.neuralAgent.update(game.getState());
         
-        if (due !== direction) {
-            npos = getNewCoord(due, position, dt);
+        if (due !== this.direction) {
+            npos = getNewCoord(this.due, this.position, dt);
             
-            if (isOnSamePlane(due, direction) || 
-                (onGridSquare(position) && 
-                 map.isFloorSpace(next(npos, due)))) {
-                direction = due;
+            if (this.isOnSamePlane(this.due, this.direction) || 
+                (this.onGridSquare(this.position) && 
+                 this.map.isFloorSpace(next(npos, due)))) {
+                this.direction = this.due;
             } else {
                 npos = null;
             }
         }
 
         if (npos === null) {
-            npos = getNewCoord(direction, position, dt);
+            npos = this.getNewCoord(this.direction, this.position, dt);
         }
         
-        if (onGridSquare(position) && map.isWallSpace(next(npos, direction))) {
-            direction = NONE;
+        if (this.onGridSquare(position) && this.map.isWallSpace(this.next(npos, this.direction))) {
+            this.direction = NONE;
         }
 
-        if (direction === NONE) {
-            return {"new" : position, "old" : position};
+        if (this.direction === NONE) {
+            return {"new" : this.position, "old" : this.position};
         }
         
-        if (npos.y === 100 && npos.x >= 190 && direction === RIGHT) {
+        if (npos.y === 100 && npos.x >= 190 && this.direction === RIGHT) {
             npos = {"y": 100, "x": -10};
         }
         
-        if (npos.y === 100 && npos.x <= -12 && direction === LEFT) {
+        if (npos.y === 100 && npos.x <= -12 && this.direction === LEFT) {
             npos = {"y": 100, "x": 190};
         }
         
-        position = npos;        
-        nextWhole = next(position, direction);
+        this.position = npos;        
+        nextWhole = this.next(this.position, this.direction);
         
-        block = map.block(nextWhole);        
+        block = this.map.block(nextWhole);        
         
-        if ((isMidSquare(position.y) || isMidSquare(position.x)) &&
+        if ((this.isMidSquare(this.position.y) || this.isMidSquare(this.position.x)) &&
             block === Pacman.BISCUIT || block === Pacman.PILL) {
             
-            map.setBlock(nextWhole, Pacman.EMPTY);
-            addScore((block === Pacman.BISCUIT) ? 10 : 50);
-            eaten += 1;
+            this.map.setBlock(nextWhole, Pacman.EMPTY);
+            this.addScore((block === Pacman.BISCUIT) ? 10 : 50);
+            this.eaten += 1;
             
-            if (eaten === 182) {
-                game.completedLevel();
+            if (this.eaten === 182) {
+                this.game.completedLevel();
             }
             
             if (block === Pacman.PILL) { 
-                game.eatenPill();
+                this.game.eatenPill();
             }
         }   
                 
         return {
-            "new" : position,
+            "new" : this.position,
             "old" : oldPosition
         };
     };
 
-    function isMidSquare(x) { 
+    this.isMidSquare = function (x) {
         var rem = x % 10;
         return rem > 3 || rem < 7;
     };
 
-    function calcAngle(dir, pos) { 
+    this.calcAngle = function (dir, pos) {
         if (dir == RIGHT && (pos.x % 10 < 5)) {
             return {"start":0.25, "end":1.75, "direction": false};
         } else if (dir === DOWN && (pos.y % 10 < 5)) { 
@@ -583,7 +593,7 @@ Pacman.User = function (game, map) {
         return {"start":0, "end":2, "direction": false};
     };
 
-    function drawDead(ctx, amount) { 
+    this.drawDead = function(ctx, amount) { 
 
         var size = map.blockSize, 
             half = size / 2;
@@ -604,7 +614,7 @@ Pacman.User = function (game, map) {
         ctx.fill();    
     };
 
-    function draw(ctx) { 
+    this.draw = function(ctx) { 
 
         var s     = map.blockSize, 
             angle = calcAngle(direction, position);
@@ -624,9 +634,10 @@ Pacman.User = function (game, map) {
         ctx.fill();    
     };
     
-    initUser();
+    this.initUser();
 
-    return {
+    return this;
+    /*return {
         "draw"          : draw,
         "drawDead"      : drawDead,
         "loseLife"      : loseLife,
@@ -639,7 +650,7 @@ Pacman.User = function (game, map) {
         "newLevel"      : newLevel,
         "reset"         : reset,
         "resetPosition" : resetPosition
-    };
+    };*/
 };
 
 Pacman.Map = function (size) {
@@ -902,16 +913,16 @@ var PACMAN = (function () {
         user         = null,
         stored       = null;
 
-	function getState(){
-		var inputs = [];
-		inputs.append(user.position["x"]);
-		inputs.append(user.position["y"]);
-		for (var i = 0; i < ghosts.length; i += 1) { 
-            inputs.append(ghosts[i].position["x"]);
-			inputs.append(ghosts[i].position["y"]);
+    function getState() {
+        var inputs = [];
+        inputs.push(user.position["x"]);
+        inputs.push(user.position["y"]);
+        for (var i = 0; i < ghosts.length; i += 1) {
+            inputs.push(ghosts[i].position["x"]);
+            inputs.push(ghosts[i].position["y"]);
         }
-		return inputs;
-	}
+        return inputs;
+    };
 
     function getTick() { 
         return tick;
@@ -1167,7 +1178,8 @@ var PACMAN = (function () {
         map   = new Pacman.Map(blockSize);
         user  = new Pacman.User({ 
             "completedLevel" : completedLevel, 
-            "eatenPill"      : eatenPill 
+            "eatenPill": eatenPill,
+            "getState":getState
         }, map);
 
         for (i = 0, len = ghostSpecs.length; i < len; i += 1) {

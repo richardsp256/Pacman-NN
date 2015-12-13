@@ -6,11 +6,10 @@ GENOMICS BEGIN
 var Genomics = {};
 
 Genomics.Genome = (function (weightsArray, fitnessFloat) {
-    var weights = weightsArray,
-        fitness = fitnessFloat;
-
-
+    this.weights = weightsArray;
+    this.fitness = fitnessFloat;
 });
+
 Genomics.Compare = function (ga, gb) {
     return ga.fitness < gb.fitness;
 }
@@ -32,6 +31,8 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
     this.generation = 0;
 
     this.randomizePoplation = function () {
+
+        console.log("Randomize: " + this.populationSize + " " + this.weightsPerResident);
         for (i = 0; i < this.populationSize; i++) {
             var weights = [];
             for (j = 0; j < this.weightsPerResident; j++)
@@ -39,6 +40,9 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
             var resident = new Genomics.Genome(weights, 0);
             this.population.push(resident);
         }
+
+        console.log("Population Length:" + this.population.length);
+        console.log("Population :" + this.population);
     }
 
     this.crossover = function (parentA, parentB, childA, childB) {
