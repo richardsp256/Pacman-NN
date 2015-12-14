@@ -65,9 +65,9 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
     }
 
     this.mutate = function (residentWeights) {
-        for (var i = 0; i < this.residentWeights.length; i++) {
+        for (var i = 0; i < residentWeights.length; i++) {
             if (Math.random() < this.mutationRate) {
-                this.residentWeights[i] += RandomClamped() * this.maxPertubance;
+                residentWeights[i] += RandomClamped() * this.maxPertubance;
             }
         }
     }
@@ -151,7 +151,7 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
         }
 
         this.population = newPopulation;
-        return population;
+        return this.population;
     }
 
     this.getPopulation = function () {
