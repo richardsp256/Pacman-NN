@@ -81,11 +81,9 @@ God.Simulation = function (el, root) {
 	    this.curIsAlive = false;
 
 
-        var agentFitness = this.pacmen_agents[this.cur_completed].fitness;
+        this.pacmen_agents[this.cur_completed].fitness = fitness;
 
-        this.pacmen_agents[this.cur_completed].fitness = agentFitness;
-
-        this.pacmen_chromos[this.cur_completed].fitness = agentFitness;
+        this.pacmen_chromos[this.cur_completed].fitness = fitness;
 		this.cur_completed++;
 		if(this.cur_completed == Params.POPULATION){
 			this.cur_completed = 0;
@@ -93,17 +91,20 @@ God.Simulation = function (el, root) {
 		}
 	}
 	
-	this.finishGeneration = function(){
-		this.average_fitness = this.geneticAlgo.getAverageFitness();
-		this.best_fitness = this.geneticAlgo.getBestFitness();
-		
-		this.geneticAlgo.getBest(1,1,this.best);
+	this.finishGeneration = function(){	
 		
 		//increment the generation counter
 		this.currentGeneration++;
 		
 		//run the GA to create a new population
 		this.pacmen_chromos = this.geneticAlgo.epoch(this.pacmen_chromos);
+		
+		this.average_fitness = this.geneticAlgo.getAverageFitness();
+		this.best_fitness = this.geneticAlgo.getBestFitness();
+		
+		this.geneticAlgo.getBest(1,1,this.best);
+		
+		console.log("Generated completed! Best score: " + this.best_fitness.fitness);
 		
 		//insert the new (hopefully)improved brains back into the sweepers
 		//and reset their positions etc

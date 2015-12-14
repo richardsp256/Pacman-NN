@@ -118,7 +118,7 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
     this.reset = function () {
         this.totalFitness = 0;
         this.bestFitness = 0;
-        this.worstFitness = 0;
+        this.worstFitness = 999999999999;
         this.averageFitness = 0;
     }
 

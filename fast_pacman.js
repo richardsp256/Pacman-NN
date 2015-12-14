@@ -18,11 +18,45 @@ var FAST_PACMAN = (function () {
     this.user = null;
     this.stored = null;
     this.game = null;
-
-    this.getState = function() {
+	
+	function checkMap(x,y){
+		if(Pacman.MAP[y][x] > 0)
+			return 1;
+		return 0;
+	}
+	
+	this.getState = function() {
         var inputs = [];
-        inputs.push(this.user.position["x"]);
-        inputs.push(this.user.position["y"]);
+		var x = Math.round(this.user.position["x"] / 10);
+		var y = Math.round(this.user.position["y"] / 10);
+        inputs.push(x);
+        inputs.push(y);
+		
+		var left_x = x - 1;
+		var right_x = x + 1;
+		var up_y = y-1;
+		var down_y = y+1;
+		//board is 22x19
+		if(left_x < 0)
+			inputs.push(0);
+		else
+			inputs.push(checkMap(y,left_x));
+			
+		if(right_x > 19)
+			inputs.push(0);
+		else
+			inputs.push(checkMap(y,right_x));
+			
+		if(up_y < 0)
+			inputs.push(0);
+		else
+			inputs.push(checkMap(up_y,x));
+		
+		if(down_y > 22)
+			inputs.push(0);
+		else
+			inputs.push(checkMap(down_y,x));
+		
         for (var i = 0; i < this.ghosts.length; i += 1) {
             inputs.push(this.ghosts[i].position["x"]);
             inputs.push(this.ghosts[i].position["y"]);
@@ -46,7 +80,7 @@ var FAST_PACMAN = (function () {
 
     this.startNewGame = function(neuralAgent, game) {
 
-        console.log("START NEW");
+        //console.log("START NEW");
 
         this.setState(WAITING);
         this.level = 1;
@@ -89,8 +123,8 @@ var FAST_PACMAN = (function () {
 
     this.update = function()
     {
-        if (this.tick % 100 == 0)
-            console.log("UPDATE - Tick: " + this.tick + " Score: " + this.user.theScore());
+        //if (this.tick % 100 == 0)
+        //    console.log("UPDATE - Tick: " + this.tick + " Score: " + this.user.theScore());
 
         this.dt = .01;
         this.mainLoop(this.dt);
@@ -143,7 +177,8 @@ var FAST_PACMAN = (function () {
             this.setState(PLAYING);
         } else if (this.state === DYING) {
 
-            console.log("DEAD - Final Score:" + this.user.theScore());
+            //console.log("DEAD - Final Score:" + this.user.theScore());
+			//console.log("Died at postion: " + this.user.position["x"]/10 + "," + this.user.position["y"]/10);
             this.game.subSimCompleted(this.user.theScore());
 
             var millisecondsToWait = 500;

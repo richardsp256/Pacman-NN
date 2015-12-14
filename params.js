@@ -6,5 +6,5 @@ Params.CROSS_RATE = 0.2;
 Params.WEIGHT_COUNT = 10;
 Params.PERTURBATION_RATE = 0.25;
 Params.THRESHOLD = 0.5;
-Params.ELITE_COUNT = 5;         //Number of "elite" genomes to sample from.
-Params.ELITE_NUMBER = 5;        //Index of the "elite" ?
+Params.ELITE_COUNT = 4;         //Number of "elite" genomes to sample from.
+Params.ELITE_NUMBER = 4;        //Index of the "elite" ?
