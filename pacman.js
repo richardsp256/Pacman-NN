@@ -928,6 +928,10 @@ var PACMAN = (function () {
         var inputs = [];
         inputs.push(user.position["x"]);
         inputs.push(user.position["y"]);
+		inputs.push(Pacman.MAP[inputs[1]][inputs[0] + 1])
+		inputs.push(Pacman.MAP[inputs[1]][inputs[0] - 1])
+		inputs.push(Pacman.MAP[inputs[1] + 1][inputs[0]])
+		inputs.push(Pacman.MAP[inputs[1] - 1][inputs[0]])
         for (var i = 0; i < ghosts.length; i += 1) {
             inputs.push(ghosts[i].position["x"]);
             inputs.push(ghosts[i].position["y"]);
