@@ -80,7 +80,6 @@ God.Simulation = function (el, root) {
 	this.subSimCompleted = function(fitness){
 	    this.curIsAlive = false;
 
-	    console.log("INDEX: " + this.user);
         var agentFitness = this.pacmen_agents[this.cur_completed].fitness;
 
         this.pacmen_chromos[this.cur_completed].fitness = agentFitness;

@@ -100,7 +100,7 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
         for (var i = 0; i < this.populationSize; i++) {
             var fit = this.population[i].fitness;
             if (fit > highestSoFar) {
-                highestSoFar = population[i];
+                highestSoFar = this.population[i];
                 this.fittestIndex = i;
                 this.bestFitness = highestSoFar;
             }
