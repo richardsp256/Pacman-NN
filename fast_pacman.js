@@ -102,7 +102,7 @@ var FAST_PACMAN = (function () {
 
         ghostPos = [];
 
-        for (i = 0, len = this.ghosts.length; i < len; i += 1) {
+        for (var i = 0, len = this.ghosts.length; i < len; i += 1) {
             ghostPos.push(this.ghosts[i].move(this.ctx));
         }
         
@@ -110,7 +110,7 @@ var FAST_PACMAN = (function () {
 
         this.userPos = u["new"];
 
-        for (i = 0, len = this.ghosts.length; i < len; i += 1) {
+        for (var i = 0, len = this.ghosts.length; i < len; i += 1) {
             if (this.collided(this.userPos, ghostPos[i]["new"])) {
                 if (this.ghosts[i].isVunerable()) {
                     this.ghosts[i].eat();
@@ -161,7 +161,7 @@ var FAST_PACMAN = (function () {
     this.eatenPill = function() {
         this.timerStart = this.tick;
         this.eatenCount = 0;
-        for (i = 0; i < this.ghosts.length; i += 1) {
+        for (var i = 0; i < this.ghosts.length; i += 1) {
             this.ghosts[i].makeEatable(this.ctx);
         }
     };
@@ -206,7 +206,8 @@ var FAST_PACMAN = (function () {
         this.user = new Pacman.User(game, this.map);
         console.log("USER: " + this.user);
         this.user.reset();
-        for (i = 0, len = this.ghostSpecs.length; i < len; i += 1) {
+
+        for (var i = 0; i < this.ghostSpecs.length; i += 1) {
             var ghost = new Pacman.Ghost({ "getTick": this.getTick }, this.map, this.ghostSpecs[i]);
             this.ghosts.push(ghost);
         }
