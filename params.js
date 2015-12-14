@@ -8,3 +8,4 @@ Params.PERTURBATION_RATE = 0.25;
 Params.THRESHOLD = 0.5;
 Params.ELITE_COUNT = 4;         //Number of "elite" genomes to sample from.
 Params.ELITE_NUMBER = 4;        //Index of the "elite" ?
+Params.SHOW_GAME = true;

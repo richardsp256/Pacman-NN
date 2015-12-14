@@ -18,7 +18,7 @@ var FAST_PACMAN = (function () {
     this.user = null;
     this.stored = null;
     this.game = null;
-	
+
 	function checkMap(x,y){
 		if(Pacman.MAP[y][x] > 0)
 			return 1;
@@ -159,7 +159,73 @@ var FAST_PACMAN = (function () {
                 }
             }
         }
+
+        if (Params.SHOW_GAME) {
+            this.realDraw(this.ctx);
+        }
     };
+
+    this.realDraw = function(ctx)
+    {
+        this.map.drawPills(ctx);
+        
+        this.map.draw(ctx);
+        this.realMainDraw(ctx);
+        this.drawFooter(ctx);
+    }
+
+    this.realMainDraw = function (ctx) {
+
+        for (var i = 0; i < this.ghosts.length; i += 1) {
+            this.redrawBlock(this.ghosts[i].position);
+        }
+
+        this.redrawBlock(this.user.position);
+
+        for (var i = 0; i < this.ghosts.length; i += 1) {
+            this.ghosts[i].draw(ctx);
+        }
+
+        this.user.draw(ctx);
+    }
+
+    this.redrawBlock = function(pos) {
+        this.map.drawBlock(Math.floor(pos.y / 10), Math.floor(pos.x / 10), this.ctx);
+        this.map.drawBlock(Math.ceil(pos.y / 10), Math.ceil(pos.x / 10), this.ctx);
+    }
+
+    this.drawFooter = function(ctx) {
+
+        var topLeft = (this.map.height * this.map.blockSize),
+            textBase = topLeft + 17;
+
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, topLeft, (this.map.width * this.map.blockSize), 30);
+
+        ctx.fillStyle = "#FFFF00";
+
+        for (var i = 0, len = this.user.getLives() ; i < len; i++) {
+            ctx.fillStyle = "#FFFF00";
+            ctx.beginPath();
+            ctx.moveTo(150 + (25 * i) + this.map.blockSize / 2,
+                       (topLeft + 1) + this.map.blockSize / 2);
+
+            ctx.arc(150 + (25 * i) + this.map.blockSize / 2,
+                    (topLeft + 1) + this.map.blockSize / 2,
+                    this.map.blockSize / 2, Math.PI * 0.25, Math.PI * 1.75, false);
+            ctx.fill();
+        }
+
+        ctx.fillStyle =  "#00FF00";
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillText("s", 10, textBase);
+
+        ctx.fillStyle = "#FFFF00";
+        ctx.font = "14px BDCartoonShoutRegular";
+        ctx.fillText("Score: " + this.user.theScore(), 30, textBase);
+        ctx.fillText("Level: " + this.level, 260, textBase);
+    }
+
 
     this.mainLoop = function() {
 
@@ -238,7 +304,7 @@ var FAST_PACMAN = (function () {
         }
 
         console.log("USER: " + this.user);
-        this.user = new Pacman.User(game, this.map);
+        this.user = new Pacman.User(this, this.map);
         console.log("USER: " + this.user);
         this.user.reset();
 

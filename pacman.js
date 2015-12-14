@@ -62,8 +62,27 @@ God.Simulation = function (el, root) {
 		console.log("SIM: pacman_game.init(...)");
 		this.pacman_game.init(this.element, this.resources);
 
-		console.log("SIM: main_loop(...)");
-		this.mainLoop();
+		if (Params.SHOW_GAME) {
+
+		    //document.addEventListener("keydown", keyDown, true);
+		    //document.addEventListener("keypress", keyPress, true);
+		    this.runOnce();
+
+		    var boundUpdate = this.pacman_game.update.bind(this.pacman_game);
+
+		    timer = window.setInterval(boundUpdate , 1000 / 30);
+		}
+		else {
+
+		    console.log("SIM: main_loop(...)");
+		    this.mainLoop();
+		}
+	}
+
+	this.runOnce = function () {
+
+	    this.curIsAlive = true;
+	    this.pacman_game.startNewGame(this.pacmen_agents[0], this);
 	}
 	
 	this.runGeneration = function(){
@@ -88,6 +107,11 @@ God.Simulation = function (el, root) {
 		if(this.cur_completed == Params.POPULATION){
 			this.cur_completed = 0;
 			this.finishGeneration();
+		}
+
+		if (Params.SHOW_GAME) {
+		    this.curIsAlive = true;
+		    this.pacman_game.startNewGame(this.pacmen_agents[i], this);
 		}
 	}
 	
@@ -145,7 +169,7 @@ var NONE = 4,
     PAC_SPEED = 2,
     GHOST_SPEED = 2,
     GHOST_SPEED_SCARED = 1,
-    GHOST_SPEED_HIDDEN = 4
+    GHOST_SPEED_HIDDEN = 4,
     Pacman = {};
 
 Pacman.FPS = 30;
@@ -264,7 +288,7 @@ Pacman.Ghost = function (game, map, colour) {
             } else { 
                 return "#0000BB";
             }
-        } else if(eaten) { 
+        } else if(this.eaten) { 
             return "#222";
         } 
         return this.colour;
@@ -325,9 +349,9 @@ Pacman.Ghost = function (game, map, colour) {
 
         ctx.beginPath();
         ctx.fillStyle = "#000";
-        ctx.arc(left+6+off[direction][0], top+6+off[direction][1], 
+        ctx.arc(left+6+off[this.direction][0], top+6+off[this.direction][1], 
                 s / 15, 0, 300, false);
-        ctx.arc((left+s)-6+off[direction][0], top+6+off[direction][1], 
+        ctx.arc((left+s)-6+off[this.direction][0], top+6+off[this.direction][1], 
                 s / 15, 0, 300, false);
         ctx.closePath();
         ctx.fill();
@@ -609,7 +633,7 @@ Pacman.User = function (pacgame, pacmap) {
 
     this.drawDead = function(ctx, amount) { 
 
-        var size = map.blockSize, 
+        var size = this.map.blockSize, 
             half = size / 2;
 
         if (amount >= 1) { 
@@ -618,11 +642,11 @@ Pacman.User = function (pacgame, pacmap) {
 
         ctx.fillStyle = "#FFFF00";
         ctx.beginPath();        
-        ctx.moveTo(((position.x/10) * size) + half, 
-                   ((position.y/10) * size) + half);
+        ctx.moveTo(((this.position.x/10) * size) + half, 
+                   ((this.position.y/10) * size) + half);
         
-        ctx.arc(((position.x/10) * size) + half, 
-                ((position.y/10) * size) + half,
+        ctx.arc(((this.position.x/10) * size) + half, 
+                ((this.position.y/10) * size) + half,
                 half, 0, Math.PI * 2 * amount, true); 
         
         ctx.fill();    
@@ -630,18 +654,18 @@ Pacman.User = function (pacgame, pacmap) {
 
     this.draw = function(ctx) { 
 
-        var s     = map.blockSize, 
-            angle = calcAngle(direction, position);
+        var s     = this.map.blockSize, 
+            angle = this.calcAngle(this.direction, this.position);
 
         ctx.fillStyle = "#FFFF00";
 
         ctx.beginPath();        
 
-        ctx.moveTo(((position.x/10) * s) + s / 2,
-                   ((position.y/10) * s) + s / 2);
+        ctx.moveTo(((this.position.x/10) * s) + s / 2,
+                   ((this.position.y/10) * s) + s / 2);
         
-        ctx.arc(((position.x/10) * s) + s / 2,
-                ((position.y/10) * s) + s / 2,
+        ctx.arc(((this.position.x/10) * s) + s / 2,
+                ((this.position.y/10) * s) + s / 2,
                 s / 2, Math.PI * angle.start, 
                 Math.PI * angle.end, angle.direction); 
         
