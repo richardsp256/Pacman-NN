@@ -140,17 +140,14 @@ Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
         var outputs = [],
             weightIndex = 0;
 
-        if (inputs.length != this.inputCount) {
-            //return empty
-            return outputs;
+        if (inputs.length != this.inputCount) {            
+            return outputs;//return empty
         }
-
 
         for (var i = 0; i < this.hiddenLayerCount + 1; i++) {
             if (i > 0)
                 inputs = outputs;//The output from previous iteration becomes new input.
-            outputs = this.hiddenLayers[i].summarize(inputs, /*weightIndex,*/ this.bias, this.response, this.sigmoid);
-            weightIndex += this.hiddenLayers[i].getTotalNeuronCount();
+            outputs = this.hiddenLayers[i].summarize(inputs, this.bias, this.response, this.sigmoid);
         }
 		return outputs;
     }
