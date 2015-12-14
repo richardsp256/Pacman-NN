@@ -7,7 +7,7 @@ var Params = {};
 
 var fill = function (source, sink) {
     for (var i = 0; i < source.length; i++) {
-        source.push(sink[i]);
+        sink.push(source[i]);
     }
 }
 
@@ -44,19 +44,17 @@ Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
 
     this.summarize = function (inputs, bias, response, responseFunction) {
         var sum = 0,
-            w = 0,
             outputs = [];
 
-        for (var i = 0; i < this.neuronCount - 1; i++) {
+        for (var i = 0; i < this.neuronCount; i++) {
             var neuron = this.neurons[i];
-            var weightCount = neuron.neuronCount - 1;
 
-            for (var j = 0; j < weightCount; j++) {
-                sum += neuron.weights[j] * inputs[w++];
+            for (var j = 0; j < inputs.length - 1; j++) {
+                sum += neuron.weights[j] * inputs[j];
             }
 
             //add bias
-            //sum += neuron[weightCount].weights[weightCount] * bias;
+            sum += neuron.weights[neuron.weights.length-1] * bias;
             outputs.push(responseFunction(sum, response));
         }
 

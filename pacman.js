@@ -81,9 +81,9 @@ God.Simulation = function (el, root) {
 	    this.curIsAlive = false;
 
 	    console.log("INDEX: " + this.user);
-        var agentFitness = this.pacmen_agents[this.cur_completed].fitness;
+        this.pacmen_agents[this.cur_completed].fitness = fitness;
 
-        this.pacmen_chromos[this.cur_completed].fitness = agentFitness;
+        this.pacmen_chromos[this.cur_completed].fitness = fitness;
 		this.cur_completed++;
 		if(this.cur_completed == Params.POPULATION){
 			this.cur_completed = 0;
@@ -106,7 +106,7 @@ God.Simulation = function (el, root) {
 		//insert the new (hopefully)improved brains back into the sweepers
 		//and reset their positions etc
 		for (var i=0; i<Params.POPULATION; ++i) {
-			this.pacmen_agents[i].setWeights(this.pacmen_chromos[i].vecWeights);
+			this.pacmen_agents[i].setWeights(this.pacmen_chromos[i].weights);
 			this.pacmen_agents[i].reset();
 		}
 	}
