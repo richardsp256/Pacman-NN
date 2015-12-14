@@ -19,7 +19,7 @@ var FAST_PACMAN = (function () {
     this.stored = null;
     this.game = null;
 
-	function checkMap(x,y){
+	this.checkMap = function(y,x,z){
 		if(Pacman.MAP[y][x] > 0)
 			return 1;
 		return 0;
@@ -40,26 +40,26 @@ var FAST_PACMAN = (function () {
 		if(left_x < 0)
 			inputs.push(0);
 		else
-			inputs.push(checkMap(y,left_x));
+			inputs.push(this.checkMap(y,left_x,1));
 			
 		if(right_x > 19)
 			inputs.push(0);
 		else
-			inputs.push(checkMap(y,right_x));
+			inputs.push(this.checkMap(y,right_x,2));
 			
 		if(up_y < 0)
 			inputs.push(0);
 		else
-			inputs.push(checkMap(up_y,x));
+			inputs.push(this.checkMap(up_y,x,3));
 		
 		if(down_y > 22)
 			inputs.push(0);
 		else
-			inputs.push(checkMap(down_y,x));
+			inputs.push(this.checkMap(down_y,x,4));
 		
         for (var i = 0; i < this.ghosts.length; i += 1) {
-            inputs.push(this.ghosts[i].position["x"]);
-            inputs.push(this.ghosts[i].position["y"]);
+            inputs.push(Math.round(this.ghosts[i].position["x"]/10));
+            inputs.push(Math.round(this.ghosts[i].position["y"]/10));
         }
         return inputs;
     };
@@ -123,7 +123,7 @@ var FAST_PACMAN = (function () {
 
     this.update = function()
     {
-        //if (this.tick % 100 == 0)
+        //if (this.tick % 1000 == 0)
         //    console.log("UPDATE - Tick: " + this.tick + " Score: " + this.user.theScore());
 
         this.dt = .01;
