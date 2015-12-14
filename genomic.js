@@ -33,7 +33,7 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
     this.randomizePoplation = function () {
 
         console.log("Randomize: " + this.populationSize + " " + this.weightsPerResident);
-        for (i = 0; i < this.populationSize; i++) {
+        for (var i = 0; i < this.populationSize; i++) {
             var weights = [];
             for (j = 0; j < this.weightsPerResident; j++)
                 weights.push(RandomClamped());
@@ -53,30 +53,30 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
             return;
         }
 
-        crossoverPoint = rand() % this.weightsPerResident;
-        for (i = 0; i < this.crossoverPoint; i++) {
+        crossoverPoint = Math.random() % this.weightsPerResident;
+        for (var i = 0; i < this.crossoverPoint; i++) {
             childA.push(parentA[i]);
             childB.push(parentB[i]);
         }
-        for (i = this.crossoverPoint; i < parentA.length; i++) {
+        for (var i = this.crossoverPoint; i < parentA.length; i++) {
             childA.push(parentB[i]);
             childB.push(parentA[i]);
         }
     }
 
     this.mutate = function (residentWeights) {
-        for (i = 0; i < this.residentWeights.length; i++) {
-            if (random() < this.mutationRate) {
-                this.residentWeights[i] += randomClamped() * this.maxPertubance;
+        for (var i = 0; i < this.residentWeights.length; i++) {
+            if (Math.random() < this.mutationRate) {
+                this.residentWeights[i] += RandomClamped() * this.maxPertubance;
             }
         }
     }
 
     this.getSample = function () {
-        var slice = random() * this.totalFitness;
+        var slice = Math.random() * this.totalFitness;
         var fitnessSoFar = 0;
 
-        for (i = 0; i < this.populationSize; i++) {
+        for (var i = 0; i < this.populationSize; i++) {
             fitnessSoFar += this.population[i].fitness;
             if (fitnessSoFar >= slice)
                 return this.population[i];
@@ -86,7 +86,7 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
 
     this.getBest = function (nBest, nCopies, newPopulation) {
         while (nBest-- != 0) {
-            for (i = 0; i < nCopies; i++) {
+            for (var i = 0; i < nCopies; i++) {
                 newPopulation.push(this.population[(this.populationSize - 1) - nBest]);
             }
         }
@@ -97,7 +97,7 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
         this.totalFitness = 0;
         var highestSoFar = 0;
         var lowestSoFar = 999999999999;
-        for (i = 0; i < this.populationSize; i++) {
+        for (var i = 0; i < this.populationSize; i++) {
             var fit = this.population[i].fitness;
             if (fit > highestSoFar) {
                 highestSoFar = population[i];
@@ -136,15 +136,15 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
 
         //GA loop
         while (newPopulation.length < this.populationSize) {
-            var parentA = getSample();
-            var parentB = getSample();
+            var parentA = this.getSample();
+            var parentB = this.getSample();
             var childA = [];
             var childB = [];
 
-            crossover(parentA.weights, parentB.weights, childA, childB);
+            this.crossover(parentA.weights, parentB.weights, childA, childB);
 
-            mutate(childA);
-            mutate(childB);
+            this.mutate(childA);
+            this.mutate(childB);
 
             newPopulation.push(new Genomics.Genome(childA, 0));
             newPopulation.push(new Genomics.Genome(childB, 0));

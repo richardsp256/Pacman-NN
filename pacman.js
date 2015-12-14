@@ -10,111 +10,121 @@
 
 var God = {};
 God.Simulation = function (el, root) {
-	var element = el;
-	var resources = root;
+	this.element = el;
+	this.resources = root;
 	
-	var pacmen_agents;
-	var pacmen_chromos;
-	var average_fitness;
-	var best_fitness;
-	var pacman_game;
-	var cur_completed;
-	var geneticAlgo;
-	var currentGeneration;
+	this.pacmen_agents = null;
+	this.pacmen_chromos = null;
+
+
+	this.cur_completed = 0;
+	this.pacman_game = null;
+	this.geneticAlgo = null;
+	this.currentGeneration = null;
+
+	this.average_fitness =0;
+	this.best_fitness = 0;
+	this.best =[];
 	
-	var best;
+	this.curIsAlive = null;
 	
-	var curIsAlive;
-	
-	function init(loadBest){
-		average_fitness = [];
-		best_fitness = [];
-		pacmen_agents = [];
+	this.init = function(loadBest){
+		this.average_fitness = 0;
+		this.best_fitness = 0;
+		this.pacmen_agents = [];
+
 		for(var i = 0; i < Params.POPULATION; i++){
-			pacmen_agents.push(new Neural.Agent());
+			this.pacmen_agents.push( new Neural.Agent() );
 		}
-		
-		var numWeights = pacmen_agents[0].getWeightsCount();
+
+		console.log("AGENTS: " + this.pacmen_agents[0].fitness);
+
+		var numWeights = this.pacmen_agents[0].getWeightsCount();
 		console.log("Num Weights: " + numWeights);
+
 		if(!loadBest){
 		
-			geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
-			pacmen_chromos = geneticAlgo.getPopulation();
+			this.geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
+			this.pacmen_chromos = this.geneticAlgo.getPopulation();
 
-			for (i=0; i<Params.POPULATION; i++)
-				pacmen_agents[i].neuralNetwork.setWeights(pacmen_chromos[i].weights);
+			for (var i=0; i<Params.POPULATION; i++)
+				this.pacmen_agents[i].neuralNetwork.setWeights(this.pacmen_chromos[i].weights);
 			
 		} else {
-			loadBest();
+			this.loadBest();
 		}
 
-		cur_completed = 0;
+		this.cur_completed = 0;
 
 		console.log("SIM: new Fast_Pacman()");
-		pacman_game = new FAST_PACMAN();
+		this.pacman_game = new FAST_PACMAN();
 
 		console.log("SIM: pacman_game.init(...)");
-		pacman_game.init(element, resources);
+		this.pacman_game.init(this.element, this.resources);
 
 		console.log("SIM: main_loop(...)");
-		mainLoop();
+		this.mainLoop();
 	}
 	
-	function runGeneration(){
+	this.runGeneration = function(){
 
 		for(var i = 0; i < Params.POPULATION; i++){
 
-			curIsAlive = true;
-			pacman_game.startNewGame(pacmen_agents[i],subSimCompleted);	
-			while(curIsAlive)
-				pacman_game.update();
+			this.curIsAlive = true;
+			this.pacman_game.startNewGame(this.pacmen_agents[i], this);	
+			while(this.curIsAlive)
+				this.pacman_game.update();
 		}
 	}
 	
-	function subSimCompleted(fitness){
-		curIsAlive = false;
-		pacmen_chromos[cur_completed].fitness = pacmen_agents[cur_completed].fitness;
-		cur_completed++;
-		if(cur_completed == Params.POPULATION){
-			cur_completed = 0;
-			finishGeneration();
+	this.subSimCompleted = function(fitness){
+	    this.curIsAlive = false;
+
+	    console.log("INDEX: " + this.user);
+        var agentFitness = this.pacmen_agents[this.cur_completed].fitness;
+
+        this.pacmen_chromos[this.cur_completed].fitness = agentFitness;
+		this.cur_completed++;
+		if(this.cur_completed == Params.POPULATION){
+			this.cur_completed = 0;
+			this.finishGeneration();
 		}
 	}
 	
-	function finishGeneration(){
-		average_fitness.append(geneticAlgo.AverageFitness());
-		best_fitness.append(geneticAlgo.BestFitness());
+	this.finishGeneration = function(){
+		this.average_fitness = this.geneticAlgo.getAverageFitness();
+		this.best_fitness = this.geneticAlgo.getBestFitness();
 		
-		geneticAlgo.getBest(1,1,best);
+		this.geneticAlgo.getBest(1,1,this.best);
 		
 		//increment the generation counter
-		currentGeneration++;
+		this.currentGeneration++;
 		
 		//run the GA to create a new population
-		pacmen_chromos = geneticAlgo.epoch(pacmen_chromos);
+		this.pacmen_chromos = this.geneticAlgo.epoch(this.pacmen_chromos);
 		
 		//insert the new (hopefully)improved brains back into the sweepers
 		//and reset their positions etc
 		for (var i=0; i<Params.POPULATION; ++i) {
-			pacmen_agents[i].setWeights(pacmen_chromos[i].vecWeights);
-			pacmen_agents[i].reset();
+			this.pacmen_agents[i].setWeights(this.pacmen_chromos[i].vecWeights);
+			this.pacmen_agents[i].reset();
 		}
 	}
 	
-	function saveBest(){
-		var actBest = best[0];
-		window.open('data:text/text;charset=utf-8,' + actBest.weights + "\n" + actBest.fitness);
+	this.saveBest = function(){
+		var actBest = this.best[0];
+		window.open('data:text/text;charset=utf-8,' + this.actBest.weights + "\n" + this.actBest.fitness);
 	}
 	
-	function loadBest(){
+	this.loadBest = function(){
 	}
 	
-	function mainLoop(){
+	this.mainLoop = function(){
 		while(true)
-			runGeneration();
+			this.runGeneration();
 	}
 	
-	init(0);
+	this.init(false);
 	//mainLoop();
 }
 
@@ -395,7 +405,7 @@ Pacman.Ghost = function (game, map, colour) {
     };*/
 };
 
-Pacman.User = function (pacgame, map) {
+Pacman.User = function (pacgame, pacmap) {
     
     this.position = { "x": 90, "y": 120 };
     this.direction = null;
@@ -406,6 +416,7 @@ Pacman.User = function (pacgame, map) {
     this.keyMap = {};
     this.neuralAgent = {};
     this.game = pacgame;
+    this.map = pacmap;
 
     this.keyMap[KEY.ARROW_LEFT]  = LEFT;
     this.keyMap[KEY.ARROW_UP]    = UP;
@@ -491,8 +502,8 @@ Pacman.User = function (pacgame, map) {
 
     this.next = function(pos, dir) {
         return {
-            "y" : pointToCoord(nextSquare(pos.y, dir)),
-            "x" : pointToCoord(nextSquare(pos.x, dir)),
+            "y" : this.pointToCoord(this.nextSquare(pos.y, dir)),
+            "x" : this.pointToCoord(this.nextSquare(pos.x, dir)),
         };                               
     };
 
@@ -516,12 +527,12 @@ Pacman.User = function (pacgame, map) {
 			
 		this.due = this.neuralAgent.update(game.getState());
         
-        if (due !== this.direction) {
-            npos = getNewCoord(this.due, this.position, dt);
+        if (this.due !== this.direction) {
+            npos = this.getNewCoord(this.due, this.position, dt);
             
             if (this.isOnSamePlane(this.due, this.direction) || 
                 (this.onGridSquare(this.position) && 
-                 this.map.isFloorSpace(next(npos, due)))) {
+                 this.map.isFloorSpace(this.next(npos, this.due)))) {
                 this.direction = this.due;
             } else {
                 npos = null;
@@ -532,7 +543,7 @@ Pacman.User = function (pacgame, map) {
             npos = this.getNewCoord(this.direction, this.position, dt);
         }
         
-        if (this.onGridSquare(position) && this.map.isWallSpace(this.next(npos, this.direction))) {
+        if (this.onGridSquare(this.position) && this.map.isWallSpace(this.next(npos, this.direction))) {
             this.direction = NONE;
         }
 

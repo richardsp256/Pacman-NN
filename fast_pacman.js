@@ -17,7 +17,7 @@ var FAST_PACMAN = (function () {
     this.map = null;
     this.user = null;
     this.stored = null;
-    this.deathCallBack = null;
+    this.game = null;
 
     this.getState = function() {
         var inputs = [];
@@ -44,14 +44,14 @@ var FAST_PACMAN = (function () {
         this.setState(COUNTDOWN);
     }
 
-    this.startNewGame = function(neuralAgent, onDeath) {
+    this.startNewGame = function(neuralAgent, game) {
 
         console.log("START NEW");
 
         this.setState(WAITING);
         this.level = 1;
         this.user.neuralAgent = neuralAgent
-        this.deathCallBack = onDeath;
+        this.game = game;
         this.user.reset();
         this.map.reset();
         this.startLevel();
@@ -144,7 +144,7 @@ var FAST_PACMAN = (function () {
         } else if (this.state === DYING) {
 
             console.log("DEAD - Final Score:" + this.user.theScore());
-            this.deathCallBack(this.user.theScore());
+            this.game.subSimCompleted(this.user.theScore());
 
             var millisecondsToWait = 500;
             setTimeout(function () {
