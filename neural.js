@@ -49,11 +49,7 @@ Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
         for (var i = 0; i < this.neuronCount; i++) {
             var neuron = this.neurons[i];
 
-<<<<<<< HEAD
-            for (var j = 0; j < weightCount; j++) {
-=======
             for (var j = 0; j < inputs.length - 1; j++) {
->>>>>>> c40322048e65135ccb3f13f455e083515cc080b0
                 sum += neuron.weights[j] * inputs[j];
             }
 
