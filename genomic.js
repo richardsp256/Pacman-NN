@@ -11,7 +11,7 @@ Genomics.Genome = (function (weightsArray, fitnessFloat) {
 });
 
 Genomics.Compare = function (ga, gb) {
-    return ga.fitness < gb.fitness;
+    return ga.fitness - gb.fitness;
 }
 
 Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPerturbation, eliteGenomeCount, eliteGenomeNum) {
@@ -127,11 +127,13 @@ Genomics.Algorithm = (function (popSize, mutRate, crossRate, numWeights, maxPert
         var newPopulation = [];
         this.population = oldPopulation;
         this.reset();
-
+        
         this.population.sort(Genomics.Compare);
+
+        this.generation++;
         this.getBestWorstAverageTotal();
         if (this.eliteCount * this.eliteNum % 2 == 0) {
-            this.getBest(this.eliteNum, this.eliteCount, newPopulation);
+            newPopulation = this.getBest(this.eliteNum, this.eliteCount, newPopulation);
         }
 
         //GA loop

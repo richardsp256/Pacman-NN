@@ -24,13 +24,19 @@ God.Simulation = function (el, root) {
 
 	this.average_fitness =0;
 	this.best_fitness = 0;
+	this.best_fitness_ever = 0;
 	this.best =[];
 	
 	this.curIsAlive = null;
+	this.inited = false;
+	this.playing = false;
+	this.stopped = false;
+	this.agentIndex = 0;
 	
 	this.init = function(loadBest){
 		this.average_fitness = 0;
 		this.best_fitness = 0;
+		this.agentIndex = 0;
 		this.pacmen_agents = [];
 
 		for(var i = 0; i < Params.POPULATION; i++){
@@ -70,7 +76,7 @@ God.Simulation = function (el, root) {
 
 		    var boundUpdate = this.pacman_game.update.bind(this.pacman_game);
 
-		    timer = window.setInterval(boundUpdate , 1000 / 30);
+		    timer = window.setInterval(boundUpdate , 1000 / 120);
 		}
 		else {
 
@@ -112,7 +118,7 @@ God.Simulation = function (el, root) {
 
 		if (Params.SHOW_GAME) {
 		    this.curIsAlive = true;
-		    this.pacman_game.startNewGame(this.pacmen_agents[i], this);
+		    this.pacman_game.startNewGame(this.pacmen_agents[this.cur_completed], this);
 		}
 	}
 	
@@ -124,36 +130,116 @@ God.Simulation = function (el, root) {
 		//run the GA to create a new population
 		this.pacmen_chromos = this.geneticAlgo.epoch(this.pacmen_chromos);
 		
+
 		this.average_fitness = this.geneticAlgo.getAverageFitness();
 		this.best_fitness = this.geneticAlgo.getBestFitness();
-		
-		this.geneticAlgo.getBest(1,1,this.best);
-		
-		console.log("Generated completed! Best score: " + this.best_fitness);
-		
-		//insert the new (hopefully)improved brains back into the sweepers
-		//and reset their positions etc
+		this.best_fitness_ever = Math.max(this.best_fitness_ever, this.best_fitness);
+		//this.geneticAlgo.getBest(1,1,this.best);
+	    //and reset their positions etc
+		//insert the new (hopefully)improved brains back into the pacmen
 		for (var i=0; i<Params.POPULATION; ++i) {
 			this.pacmen_agents[i].setWeights(this.pacmen_chromos[i].weights);
 			this.pacmen_agents[i].reset();
 		}
+
+
+
+
+		if (this.currentGeneration % 1 == 0) {
+
+		    console.log("\n-------------------------------------");
+		    console.log("Generation: " + this.currentGeneration + " - Best score: " + this.best_fitness);
+		    console.log("Stats: Avg:" + this.average_fitness + " - Best Ever: " + this.best_fitness_ever);
+		    //console.log("Best: " + this.best);
+		    //console.log(this.best);
+		    //console.log("---------------------------------------\n");
+		    var millisecondsToWait = 10;
+		    this.stop();
+		    setTimeout(function () {
+		        this.start();
+		    }, millisecondsToWait);
+		}
 	}
 	
 	this.saveBest = function(){
-		var actBest = this.best[0];
-		window.open('data:text/text;charset=utf-8,' + this.actBest.weights + "\n" + this.actBest.fitness);
+	    var actBest = this.best[0];
+	    console.log("Saving...");
+	    console.log("ActBest: " + actBest);
+		window.open('data:text/text;charset=utf-8,' + actBest.weights + "\n" + actBest.fitness);
+
 	}
 	
-	this.loadBest = function(){
+	this.loadBest = function () {
+	    console.log("Loading...");
 	}
 	
 	this.mainLoop = function(){
-		while(true)
+		while(this.playing)
 			this.runGeneration();
 	}
-	
-	this.init(false);
-	//mainLoop();
+
+	this.saveToFile = function(filename, obj)
+	{
+	    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+	    window.requestFileSystem(window.PERSISTENT, 1024, function (fs) {
+	        fs.root.getFile(filename, { create: true, exclusive: true }, function (file) {
+	            file.createWriter(function (writer) {
+	                var blob = new Blob(obj, { type: 'text/plain' });
+	                writer.write(blob);
+	            });
+	        });
+	    }, function () {
+	        console.log("Could not access file system");
+	    });
+	}
+
+	this.loadFromFile = function(filename)
+	{
+	    var onInitFs = function(fs) {
+
+	        fs.root.getFile(filename, {}, function (fileEntry) {
+
+	            // Get a File object representing the file,
+	            // then use FileReader to read its contents.
+	            fileEntry.file(function (file) {
+	                var reader = new FileReader();
+
+	                reader.onloadend = function (e) {
+	                    var txtArea = document.createElement('textarea');
+	                    txtArea.value = this.result;
+	                    document.body.appendChild(txtArea);
+	                };
+
+	                reader.readAsText(file);
+	            }, errorHandler);
+
+	        }, errorHandler);
+
+	    }
+
+	    window.requestFileSystem(window.TEMPORARY, 1024 * 1024, onInitFs, errorHandler);
+	}
+
+	this.start = function () {
+	    if (this.inited == false) {
+	        this.inited = true;
+	        this.init(false);
+	    }
+
+	    this.playing = true;
+	    this.stopped = false;
+	    if (!Params.SHOW_GAME) {
+	        this.mainLoop();
+	    }
+	}
+
+	this.stop = function()
+	{
+	    this.playing = false;
+	    this.stopped = true;
+	}
+
+	return this;
 }
 
 var NONE = 4,

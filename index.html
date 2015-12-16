@@ -38,6 +38,13 @@
   Code on <a href="http://arandomurl.com/">Github</a>
 
   <div id="pacman"></div>
+    
+  <div id="buttonDiv">
+    <input type="button" value="Start" onclick="start()" />
+    <input type="button" value="Stop" onclick="stop()" />
+    <input type="button" value="Save" onclick="save()"/>
+    <input type="button" value="Load" onclick="load()"/>
+  </div>
   <script src="genomic.js"></script>
   <script src="neural.js"></script>
   <script src="utils.js"></script>
@@ -49,13 +56,31 @@
   <script>
       //console.log("INIT");
     var el = document.getElementById("pacman");
+    var sim = null;
+    if (Modernizr.canvas && Modernizr.localstorage && Modernizr.audio && (Modernizr.audio.ogg || Modernizr.audio.mp3)) {
 
-    if (Modernizr.canvas && Modernizr.localstorage && 
-        Modernizr.audio && (Modernizr.audio.ogg || Modernizr.audio.mp3)) {
-        window.setTimeout(function () { God.Simulation(el, "./"); }, 0);
+        sim = God.Simulation(el, "./");
+        //sim.init(false);
+        //window.setTimeout(function () {  }, 0);
     } else { 
       el.innerHTML = "Sorry, needs a decent browser<br /><small>" + 
         "(firefox 3.6+, Chrome 4+, Opera 10+ and Safari 4+)</small>";
+    }
+
+    function save() {
+        sim.saveBest();
+    }
+
+    function load() {
+        sim.loadBest();
+    }
+
+    function start() {
+        sim.start();
+    }
+
+    function stop() {
+        sim.stop();
     }
   </script>
 

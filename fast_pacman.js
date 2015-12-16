@@ -9,6 +9,7 @@ var FAST_PACMAN = (function () {
     this.tick = 0;
     this.ghostPos = { x: 0, y: 0 };
     this.userPos = { x: 0, y: 0 };
+    this.prevPos = { x: 0, y: 0 };
     this.stateChanged = true;
     this.timerStart = null;
     this.lastTime = 0;
@@ -18,6 +19,7 @@ var FAST_PACMAN = (function () {
     this.user = null;
     this.stored = null;
     this.game = null;
+    
 
 	this.checkMap = function(y,x,z){
 		if(Pacman.MAP[y][x] > 0)
@@ -128,6 +130,7 @@ var FAST_PACMAN = (function () {
 
         this.dt = .01;
         this.mainLoop(this.dt);
+
     }
 
     this.mainDraw = function(dt) {
@@ -140,9 +143,15 @@ var FAST_PACMAN = (function () {
             ghostPos.push(this.ghosts[i].move(this.ctx));
         }
         
+        this.prevPos = this.user.position;
         u = this.user.move(this, this.ctx, this.dt);
-
         this.userPos = u["new"];
+
+        //lose points for sitting still
+        if (this.prevPos.x == this.userPos.x && this.prevPos.y == this.userPos.y)
+            this.user.addScore(-.1);
+
+
 
         for (var i = 0, len = this.ghosts.length; i < len; i += 1) {
             if (this.collided(this.userPos, ghostPos[i]["new"])) {
@@ -159,6 +168,7 @@ var FAST_PACMAN = (function () {
                 }
             }
         }
+
 
         if (Params.SHOW_GAME) {
             this.realDraw(this.ctx);
@@ -231,6 +241,11 @@ var FAST_PACMAN = (function () {
 
         var diff;
 
+        if (!this.game.playing)
+        {
+            return;
+        }
+
         if (this.state !== PAUSE) {
             this.tick++;
         }
@@ -246,13 +261,6 @@ var FAST_PACMAN = (function () {
             //console.log("DEAD - Final Score:" + this.user.theScore());
 			//console.log("Died at postion: " + this.user.position["x"]/10 + "," + this.user.position["y"]/10);
             this.game.subSimCompleted(this.user.theScore());
-
-            var millisecondsToWait = 500;
-            setTimeout(function () {
-                // Whatever you want to do after the wait
-            }, millisecondsToWait);
-
-            //loseLife();
 
         } else if (this.state === COUNTDOWN) {
             this.setState(PLAYING);
@@ -283,7 +291,7 @@ var FAST_PACMAN = (function () {
     };
 
     this.init = function(wrapper, root) {
-        console.log("INIT");
+        console.log("Initializing!");
         var i, len, ghost,
             blockSize = wrapper.offsetWidth / 19,
             canvas = document.createElement("canvas");
@@ -297,15 +305,8 @@ var FAST_PACMAN = (function () {
 
         this.map = new Pacman.Map(blockSize);
 
-        var game = {
-            "completedLevel": this.completedLevel,
-            "eatenPill": this.eatenPill,
-            "getState" : this.getState
-        }
-
-        console.log("USER: " + this.user);
         this.user = new Pacman.User(this, this.map);
-        console.log("USER: " + this.user);
+
         this.user.reset();
 
         for (var i = 0; i < this.ghostSpecs.length; i += 1) {
