@@ -64,7 +64,7 @@ God.Simulation = function (el, root) {
 			this.pacmen_chromos = this.geneticAlgo.getPopulation();
 			var j = 0;
 			for(j = 0; j < Params.ELITE_NUMBER; j++)
-				pacman_chromos[j] = this.best;
+				this.pacmen_chromos[j] = this.best;
 			for (var i=j; i<Params.POPULATION; i++)
 				this.pacmen_agents[i].neuralNetwork.setWeights(this.pacmen_chromos[i].weights);
 		}
@@ -147,7 +147,7 @@ God.Simulation = function (el, root) {
 		}
 
 
-		if(this.currentGeneration % 100 == 0)
+		if(this.currentGeneration % 1000 == 0)
 		{
 		    console.log("\n-------------------------------------");
 		    console.log("Generation: " + this.currentGeneration + " - Best score: " + this.best_fitness);
@@ -185,7 +185,7 @@ God.Simulation = function (el, root) {
 	this.dataToJSONTab = function(){
 		var json = JSON.stringify(this.best.weights);
 		var outputWindow = window.open("","_blank");
-		openWindow.document.write(data);
+		outputWindow.document.write(json);
 	}
 	
 	this.JSONtoData = function(text){

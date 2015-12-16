@@ -23,7 +23,8 @@ Neural.Neuron = function (inputCount) {
 
     this.randomWeights = function () {
         for (var i = 0; i < this.inputs; i++) {
-            this.weights.push(Math.random());
+			//random weight between -1 and 1
+            this.weights.push((Math.random() * 2) -1);
         }
     }
     this.randomWeights();

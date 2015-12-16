@@ -2,17 +2,17 @@
 //2000 Generations
 //Best 904.1999
 
-Params.PACMANCOUNT = 1000;
+Params.PACMANCOUNT = 50;
 Params.BIAS = -1;
-Params.POPULATION = 1000;
+Params.POPULATION = 50;
 Params.MUTATION_RATE = 0.4;
 Params.CROSS_RATE = 0.4;
 Params.WEIGHT_COUNT = 16;
 Params.PERTURBATION_RATE = .8;
 Params.THRESHOLD = 0.4;
 
-Params.ELITE_COUNT = 5;         //Number of "elite" genomes to sample from.
-Params.ELITE_NUMBER = 4;        //Copies of the "elite" to keep
+Params.ELITE_COUNT = 1;         //Number of "elite" genomes to sample from.
+Params.ELITE_NUMBER = 40;        //Copies of the "elite" to keep
 Params.SHOW_GAME = false;
 
 

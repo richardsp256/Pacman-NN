@@ -1,5 +1,5 @@
 //returns a random integer between x and y
-function	  RandInt(x,y) {return Math.random()%(y-x+1)+x;}
+function	  RandInt(x,y) {return Math.floor(Math.random() * (max - min + 1)) + min;}
 
 //returns a random float between zero and 1
 function RandFloat() { return Math.random();}
@@ -14,5 +14,5 @@ function   RandBool() {
 
 //returns a random float in the range -1 < n < 1
 function RandomClamped(){
-	return RandFloat() - RandFloat(); 
+	return (Math.random() * 2) -1; 
 }
