@@ -516,6 +516,9 @@ Pacman.User = function (pacgame, pacmap) {
     this.neuralAgent = {};
     this.game = pacgame;
     this.map = pacmap;
+	this.poorPrevMove = false;
+	this.poorMoveCounter = 0;
+	this.poorMoves = [];
 
     this.keyMap[KEY.ARROW_LEFT]  = LEFT;
     this.keyMap[KEY.ARROW_UP]    = UP;
@@ -624,7 +627,12 @@ Pacman.User = function (pacgame, pacmap) {
             oldPosition = this.position,
             block       = null;
 			
-		this.due = this.neuralAgent.update(game.getState());
+		if(this.poorPrevMove){
+			this.due = this.neuralAgent.update(game.getState(),true,this.poorMoves);
+			this.poorPrevMove = false;
+		}
+		else
+			this.due = this.neuralAgent.update(game.getState(),false,this.due);
         
         if (this.due !== this.direction) {
             npos = this.getNewCoord(this.due, this.position, dt);
@@ -643,12 +651,18 @@ Pacman.User = function (pacgame, pacmap) {
         }
         
         if (this.onGridSquare(this.position) && this.map.isWallSpace(this.next(npos, this.direction))) {
+			this.poorPrevMove = true;
+			this.poorMoveCounter+=1;
+			this.poorMoves.push(this.due);
             this.direction = NONE;
         }
 
         if (this.direction === NONE) {
             return {"new" : this.position, "old" : this.position};
         }
+		
+		this.poorMoveCounter = 0;
+		this.poorMoves = [];
         
         if (npos.y === 100 && npos.x >= 190 && this.direction === RIGHT) {
             npos = {"y": 100, "x": -10};
@@ -658,7 +672,9 @@ Pacman.User = function (pacgame, pacmap) {
             npos = {"y": 100, "x": 190};
         }
         
-        this.position = npos;        
+        this.position = npos;
+		if(this.position == oldPosition)
+			this.poorPrevMove = true;
         nextWhole = this.next(this.position, this.direction);
         
         block = this.map.block(nextWhole);        

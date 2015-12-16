@@ -180,7 +180,7 @@ Neural.Agent = function () {
     //
     //       Store this information in "World"
 
-    this.update = function (inputs) {
+    this.update = function (inputs,prevBad,poorMoves) {
 
         //TODO add pacmans current location.
         //     add each ghost location.
@@ -204,20 +204,32 @@ Neural.Agent = function () {
 		var i = outputs.indexOf(Math.max.apply(Math, outputs));
 
         var movement = NONE;
+		
+		var possibleMoves = [LEFT,RIGHT,UP,DOWN];
 
         //arbitrater to give these values meaning
         //Not sure what the output actually looks like.
-        if (i == 0)
-            movement = LEFT;
+		if(!prevBad){
+			if (i == 0)
+				movement = LEFT;
 
-        if (i == 1)
-            movement = RIGHT;
+			if (i == 1)
+				movement = RIGHT;
 
-        if (i == 2)
-            movement = UP;
+			if (i == 2)
+				movement = UP;
 
-        if (i == 3)
-            movement = DOWN;
+			if (i == 3)
+				movement = DOWN;
+		} else {
+			for(var i = 0; i < poorMoves.length; i++){
+				var index = possibleMoves.indexOf(poorMoves[i]);
+				possibleMoves.splice(index,1);
+				outputs.splice(index,1);
+			}
+			var z = outputs.indexOf(Math.max.apply(Math, outputs));
+			movement = possibleMoves[z];
+		}
 			
 		return movement;
     }
