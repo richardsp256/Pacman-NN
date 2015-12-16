@@ -146,10 +146,10 @@ God.Simulation = function (el, root) {
 		this.geneticAlgo.getBest(1,1,temp);
 		
 		temp = temp[0];
-		if(best == null)
-			best = temp;
-		else if(best.fitness < temp.fitness)
-				best = temp;
+		if(this.best == null)
+			this.best = temp;
+		else if(this.best.fitness < temp.fitness)
+				this.best = temp;
 		
 	    //and reset their positions etc
 		//insert the new (hopefully)improved brains back into the pacmen
@@ -179,13 +179,13 @@ God.Simulation = function (el, root) {
 			this.runGeneration();
 	}
 	
-	this.dataToJSONTab(){
+	this.dataToJSONTab = function(){
 		var json = JSON.stringify(this.best.weights);
 		var outputWindow = window.open("","_blank");
 		openWindow.document.write(data);
 	}
 	
-	this.JSONtoData(text){
+	this.JSONtoData = function(text){
 		var struct = JSON.parse(text);
 		this.loadBest = true;
 		this.best = new Genomics.Genome(struct, 0);
@@ -756,6 +756,10 @@ Pacman.Map = function (size) {
         blockSize = size,
         pillSize  = 0,
         map       = null;
+		
+	function getMap(){
+		return map;
+	}
     
     function withinBounds(y, x) {
         return y >= 0 && y < height && x >= 0 && x < width;
@@ -904,7 +908,8 @@ Pacman.Map = function (size) {
         "isFloorSpace" : isFloorSpace,
         "height"       : height,
         "width"        : width,
-        "blockSize"    : blockSize
+        "blockSize"    : blockSize,
+		"getMap"       : getMap
     };
 };
 
