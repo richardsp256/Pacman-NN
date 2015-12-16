@@ -69,8 +69,8 @@ Neural.NeuralLayer = function (numberOfNeurons, inputsPerNeuron) {
 Neural.NeuralNetwork = function (biasFloat, activationResponseFloat) {
     this.inputCount = 14;//Number of input neorons
     this.outputCount = 4;//Number of output neurons
-    this.hiddenLayerCount = 3;//Number of hidden layers
-    this.neuronsPerHiddenLayerCount = 6;//Number of neurons within a hidden layer
+    this.hiddenLayerCount = 1;//Number of hidden layers
+    this.neuronsPerHiddenLayerCount = 9;//Number of neurons within a hidden layer
     this.hiddenLayers = [];//The set of hidden layers
 
     this.bias = biasFloat;

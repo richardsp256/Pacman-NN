@@ -44,6 +44,7 @@
     <input type="button" value="Stop" onclick="stop()" />
     <input type="button" value="Save" onclick="save()"/>
     <input type="button" value="Load" onclick="load()"/>
+    <input type="button" value="Toggle" onclick="toggle()" />
   </div>
   <script src="genomic.js"></script>
   <script src="neural.js"></script>
@@ -60,8 +61,7 @@
     if (Modernizr.canvas && Modernizr.localstorage && Modernizr.audio && (Modernizr.audio.ogg || Modernizr.audio.mp3)) {
 
         sim = God.Simulation(el, "./");
-        //sim.init(false);
-        //window.setTimeout(function () {  }, 0);
+        
     } else { 
       el.innerHTML = "Sorry, needs a decent browser<br /><small>" + 
         "(firefox 3.6+, Chrome 4+, Opera 10+ and Safari 4+)</small>";
@@ -81,6 +81,10 @@
 
     function stop() {
         sim.stop();
+    }
+
+    function toggle() {
+        sim.toggleVisual();
     }
   </script>
 

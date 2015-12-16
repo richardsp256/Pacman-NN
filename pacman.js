@@ -32,6 +32,9 @@ God.Simulation = function (el, root) {
 	this.playing = false;
 	this.stopped = false;
 	this.agentIndex = 0;
+
+	this.visuals = Params.SHOW_GAME;
+	this.timer = null;
 	
 	this.init = function(loadBest){
 		this.average_fitness = 0;
@@ -43,10 +46,7 @@ God.Simulation = function (el, root) {
 			this.pacmen_agents.push( new Neural.Agent() );
 		}
 
-		console.log("AGENTS: " + this.pacmen_agents[0].fitness);
-
 		var numWeights = this.pacmen_agents[0].getWeightsCount();
-		console.log("Num Weights: " + numWeights);
 
 		if(!loadBest){
 		
@@ -62,33 +62,16 @@ God.Simulation = function (el, root) {
 
 		this.cur_completed = 0;
 
-		console.log("SIM: new Fast_Pacman()");
 		this.pacman_game = new FAST_PACMAN();
 
-		console.log("SIM: pacman_game.init(...)");
 		this.pacman_game.init(this.element, this.resources);
 
-		if (Params.SHOW_GAME) {
-
-		    //document.addEventListener("keydown", keyDown, true);
-		    //document.addEventListener("keypress", keyPress, true);
-		    this.runOnce();
-
-		    var boundUpdate = this.pacman_game.update.bind(this.pacman_game);
-
-		    timer = window.setInterval(boundUpdate , 1000 / 120);
-		}
-		else {
-
-		    console.log("SIM: main_loop(...)");
-		    this.mainLoop();
-		}
 	}
 
 	this.runOnce = function () {
 
 	    this.curIsAlive = true;
-	    this.pacman_game.startNewGame(this.pacmen_agents[0], this);
+	    this.pacman_game.startNewGame(this.pacmen_agents[this.cur_completed], this);
 	}
 	
 	this.runGeneration = function(){
@@ -108,15 +91,15 @@ God.Simulation = function (el, root) {
 		//console.log("Pacman #: " + this.cur_completed + " died with score: " + fitness);
 
         this.pacmen_agents[this.cur_completed].fitness = fitness;
-
         this.pacmen_chromos[this.cur_completed].fitness = fitness;
+
 		this.cur_completed++;
 		if(this.cur_completed == Params.POPULATION){
 			this.cur_completed = 0;
 			this.finishGeneration();
 		}
 
-		if (Params.SHOW_GAME) {
+		if (this.visuals && this.playing) {
 		    this.curIsAlive = true;
 		    this.pacman_game.startNewGame(this.pacmen_agents[this.cur_completed], this);
 		}
@@ -128,12 +111,12 @@ God.Simulation = function (el, root) {
 		this.currentGeneration++;
 		
 		//run the GA to create a new population
-		this.pacmen_chromos = this.geneticAlgo.epoch(this.pacmen_chromos);
-		
+		this.pacmen_chromos = this.geneticAlgo.epoch(this.pacmen_chromos);		
 
 		this.average_fitness = this.geneticAlgo.getAverageFitness();
 		this.best_fitness = this.geneticAlgo.getBestFitness();
 		this.best_fitness_ever = Math.max(this.best_fitness_ever, this.best_fitness);
+
 		//this.geneticAlgo.getBest(1,1,this.best);
 	    //and reset their positions etc
 		//insert the new (hopefully)improved brains back into the pacmen
@@ -142,22 +125,27 @@ God.Simulation = function (el, root) {
 			this.pacmen_agents[i].reset();
 		}
 
-
-
-
-		if (this.currentGeneration % 1 == 0) {
-
+		if(this.currentGeneration % 100 == 0)
+		{
 		    console.log("\n-------------------------------------");
 		    console.log("Generation: " + this.currentGeneration + " - Best score: " + this.best_fitness);
 		    console.log("Stats: Avg:" + this.average_fitness + " - Best Ever: " + this.best_fitness_ever);
-		    //console.log("Best: " + this.best);
-		    //console.log(this.best);
-		    //console.log("---------------------------------------\n");
-		    var millisecondsToWait = 10;
 		    this.stop();
-		    setTimeout(function () {
-		        this.start();
-		    }, millisecondsToWait);
+		}
+		else
+		{
+		    if (this.currentGeneration % 1 == 0)
+		    {
+		        console.log("\n-------------------------------------");
+		        console.log("Generation: " + this.currentGeneration + " - Best score: " + this.best_fitness);
+		        console.log("Stats: Avg:" + this.average_fitness + " - Best Ever: " + this.best_fitness_ever);
+
+		        var millisecondsToWait = 10;
+		        this.stop();
+		        setTimeout(function () {
+		            this.start();
+		        }, millisecondsToWait);
+		    }
 		}
 	}
 	
@@ -178,46 +166,10 @@ God.Simulation = function (el, root) {
 			this.runGeneration();
 	}
 
-	this.saveToFile = function(filename, obj)
-	{
-	    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-	    window.requestFileSystem(window.PERSISTENT, 1024, function (fs) {
-	        fs.root.getFile(filename, { create: true, exclusive: true }, function (file) {
-	            file.createWriter(function (writer) {
-	                var blob = new Blob(obj, { type: 'text/plain' });
-	                writer.write(blob);
-	            });
-	        });
-	    }, function () {
-	        console.log("Could not access file system");
-	    });
-	}
-
-	this.loadFromFile = function(filename)
-	{
-	    var onInitFs = function(fs) {
-
-	        fs.root.getFile(filename, {}, function (fileEntry) {
-
-	            // Get a File object representing the file,
-	            // then use FileReader to read its contents.
-	            fileEntry.file(function (file) {
-	                var reader = new FileReader();
-
-	                reader.onloadend = function (e) {
-	                    var txtArea = document.createElement('textarea');
-	                    txtArea.value = this.result;
-	                    document.body.appendChild(txtArea);
-	                };
-
-	                reader.readAsText(file);
-	            }, errorHandler);
-
-	        }, errorHandler);
-
-	    }
-
-	    window.requestFileSystem(window.TEMPORARY, 1024 * 1024, onInitFs, errorHandler);
+	this.toggleVisual = function () {
+	    this.stop();
+	    this.visuals = !this.visuals;
+	    this.start();
 	}
 
 	this.start = function () {
@@ -228,8 +180,16 @@ God.Simulation = function (el, root) {
 
 	    this.playing = true;
 	    this.stopped = false;
-	    if (!Params.SHOW_GAME) {
+
+	    if (!this.visuals) {
 	        this.mainLoop();
+	    }
+	    else
+	    {
+	        this.runOnce();
+
+	        var boundUpdate = this.pacman_game.update.bind(this.pacman_game);
+	        this.timer = window.setInterval(boundUpdate, 1000 / 120);
 	    }
 	}
 
@@ -237,6 +197,8 @@ God.Simulation = function (el, root) {
 	{
 	    this.playing = false;
 	    this.stopped = true;
+	    if (this.timer != null)
+	        window.clearInterval(this.timer);
 	}
 
 	return this;

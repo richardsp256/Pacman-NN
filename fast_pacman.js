@@ -82,8 +82,6 @@ var FAST_PACMAN = (function () {
 
     this.startNewGame = function(neuralAgent, game) {
 
-        //console.log("START NEW");
-
         this.setState(WAITING);
         this.level = 1;
         this.user.neuralAgent = neuralAgent
@@ -152,7 +150,6 @@ var FAST_PACMAN = (function () {
             this.user.addScore(-.1);
 
 
-
         for (var i = 0, len = this.ghosts.length; i < len; i += 1) {
             if (this.collided(this.userPos, ghostPos[i]["new"])) {
                 if (this.ghosts[i].isVunerable()) {
@@ -170,7 +167,7 @@ var FAST_PACMAN = (function () {
         }
 
 
-        if (Params.SHOW_GAME) {
+        if (this.game.visuals) {
             this.realDraw(this.ctx);
         }
     };
