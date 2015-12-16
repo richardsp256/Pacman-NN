@@ -37,6 +37,31 @@ var FAST_PACMAN = (function () {
 		return 1,1;
 	}
 	
+	
+	this.otherSeekPellet = function(){
+		for(var i = 0; i < this.map.getMap().length; i++){
+			for(var j = 0; j < this.map.getMap()[i].length; j++){
+				if(this.map.getMap()[i][j] == 1)
+					return [j,i]
+			}
+		}
+		return 1,1;
+	}
+	
+	this.sumMap = function(){
+		var map = this.map.getMap();
+		var flatMap = [];
+		for(var  i = 0; i < map.length; i++){
+			for(var j = 0; j < map[i].length; j++){
+				flatMap.push(i);
+				flatMap.push(j);
+				flatMap.push(this.checkMap(i,j,1));
+			}
+		}
+		return flatMap;
+	}
+	
+	
 	this.getState = function() {
         var inputs = [];
 		var x = Math.round(this.user.position["x"] / 10);
@@ -49,6 +74,7 @@ var FAST_PACMAN = (function () {
 		var up_y = y-1;
 		var down_y = y+1;
 		//board is 22x19
+		
 		if(left_x < 0)
 			inputs.push(0);
 		else
@@ -69,14 +95,25 @@ var FAST_PACMAN = (function () {
 		else
 			inputs.push(this.checkMap(down_y,x,4));
 		
+		
         for (var i = 0; i < this.ghosts.length; i += 1) {
-            inputs.push(Math.round(this.ghosts[i].position["x"]/10));
-            inputs.push(Math.round(this.ghosts[i].position["y"]/10));
+			var ghostX = Math.round(this.ghosts[i].position["x"]/10);
+			var ghostY = Math.round(this.ghosts[i].position["y"]/10);
+			var absX = Math.abs(ghostX-x);
+			var absY = Math.abs(ghostY-y)
+            inputs.push(absX);
+            inputs.push(absY);
         }
 		
 		var nextPellet = this.seekPellet();
-		inputs.push(nextPellet[0]);
-		inputs.push(nextPellet[1]);
+		var pelletX = nextPellet[0];
+		var pelletY = nextPellet[1];
+		inputs.push(Math.abs(x-pelletX));
+		inputs.push(Math.abs(x-pelletY));
+		
+		//var mapIn = this.sumMap();
+		//inputs.concat(mapIn);
+		
         return inputs;
     };
 
