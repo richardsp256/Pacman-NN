@@ -7,7 +7,7 @@ Params.BIAS = -1;
 Params.POPULATION = 1000;
 Params.MUTATION_RATE = 0.4;
 Params.CROSS_RATE = 0.4;
-Params.WEIGHT_COUNT = 14;
+Params.WEIGHT_COUNT = 16;
 Params.PERTURBATION_RATE = .8;
 Params.THRESHOLD = 0.4;
 

@@ -25,7 +25,7 @@ God.Simulation = function (el, root) {
 	this.average_fitness =0;
 	this.best_fitness = 0;
 	this.best_fitness_ever = 0;
-	this.best =[];
+	this.best = null;
 	
 	this.curIsAlive = null;
 	this.inited = false;
@@ -35,8 +35,11 @@ God.Simulation = function (el, root) {
 
 	this.visuals = Params.SHOW_GAME;
 	this.timer = null;
+
+	this.loadBest = false;
+
 	
-	this.init = function(loadBest){
+	this.init = function(){
 		this.average_fitness = 0;
 		this.best_fitness = 0;
 		this.agentIndex = 0;
@@ -48,7 +51,7 @@ God.Simulation = function (el, root) {
 
 		var numWeights = this.pacmen_agents[0].getWeightsCount();
 
-		if(!loadBest){
+		if(!this.loadBest){
 		
 			this.geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
 			this.pacmen_chromos = this.geneticAlgo.getPopulation();
@@ -57,7 +60,13 @@ God.Simulation = function (el, root) {
 				this.pacmen_agents[i].neuralNetwork.setWeights(this.pacmen_chromos[i].weights);
 			
 		} else {
-			this.loadBest();
+			this.geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
+			this.pacmen_chromos = this.geneticAlgo.getPopulation();
+			var j = 0;
+			for(j = 0; j < Params.ELITE_NUMBER; j++)
+				pacman_chromos[j] = this.best;
+			for (var i=j; i<Params.POPULATION; i++)
+				this.pacmen_agents[i].neuralNetwork.setWeights(this.pacmen_chromos[i].weights);
 		}
 
 		this.cur_completed = 0;
@@ -117,13 +126,26 @@ God.Simulation = function (el, root) {
 		this.best_fitness = this.geneticAlgo.getBestFitness();
 		this.best_fitness_ever = Math.max(this.best_fitness_ever, this.best_fitness);
 
+
 		//this.geneticAlgo.getBest(1,1,this.best);
+
+		
+		var temp = []
+		this.geneticAlgo.getBest(1,1,temp);
+		
+		temp = temp[0];
+		if(this.best == null)
+			this.best = temp;
+		else if(this.best.fitness < temp.fitness)
+				this.best = temp;
+
 	    //and reset their positions etc
 		//insert the new (hopefully)improved brains back into the pacmen
 		for (var i=0; i<Params.POPULATION; ++i) {
 			this.pacmen_agents[i].setWeights(this.pacmen_chromos[i].weights);
 			this.pacmen_agents[i].reset();
 		}
+
 
 		if(this.currentGeneration % 100 == 0)
 		{
@@ -149,18 +171,6 @@ God.Simulation = function (el, root) {
 		}
 	}
 	
-	this.saveBest = function(){
-	    var actBest = this.best[0];
-	    console.log("Saving...");
-	    console.log("ActBest: " + actBest);
-		window.open('data:text/text;charset=utf-8,' + actBest.weights + "\n" + actBest.fitness);
-
-	}
-	
-	this.loadBest = function () {
-	    console.log("Loading...");
-	}
-	
 	this.mainLoop = function(){
 		while(this.playing)
 			this.runGeneration();
@@ -170,12 +180,25 @@ God.Simulation = function (el, root) {
 	    this.stop();
 	    this.visuals = !this.visuals;
 	    this.start();
+
+	
+	this.dataToJSONTab = function(){
+		var json = JSON.stringify(this.best.weights);
+		var outputWindow = window.open("","_blank");
+		openWindow.document.write(data);
+	}
+	
+	this.JSONtoData = function(text){
+		var struct = JSON.parse(text);
+		this.loadBest = true;
+		this.best = new Genomics.Genome(struct, 0);
+
 	}
 
 	this.start = function () {
 	    if (this.inited == false) {
 	        this.inited = true;
-	        this.init(false);
+	        this.init();
 	    }
 
 	    this.playing = true;
@@ -747,6 +770,10 @@ Pacman.Map = function (size) {
         blockSize = size,
         pillSize  = 0,
         map       = null;
+		
+	function getMap(){
+		return map;
+	}
     
     function withinBounds(y, x) {
         return y >= 0 && y < height && x >= 0 && x < width;
@@ -895,7 +922,8 @@ Pacman.Map = function (size) {
         "isFloorSpace" : isFloorSpace,
         "height"       : height,
         "width"        : width,
-        "blockSize"    : blockSize
+        "blockSize"    : blockSize,
+		"getMap"       : getMap
     };
 };
 

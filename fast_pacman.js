@@ -27,6 +27,16 @@ var FAST_PACMAN = (function () {
 		return 0;
 	}
 	
+	this.seekPellet = function(){
+		for(var i = 21; i > -1; i--){
+			for(var j = 0; j < this.map.getMap()[i].length; j++){
+				if(this.map.getMap()[i][j] == 1)
+					return [j,i]
+			}
+		}
+		return 1,1;
+	}
+	
 	this.getState = function() {
         var inputs = [];
 		var x = Math.round(this.user.position["x"] / 10);
@@ -63,6 +73,10 @@ var FAST_PACMAN = (function () {
             inputs.push(Math.round(this.ghosts[i].position["x"]/10));
             inputs.push(Math.round(this.ghosts[i].position["y"]/10));
         }
+		
+		var nextPellet = this.seekPellet();
+		inputs.push(nextPellet[0]);
+		inputs.push(nextPellet[1]);
         return inputs;
     };
 
