@@ -25,15 +25,16 @@ God.Simulation = function (el, root) {
 	this.average_fitness =0;
 	this.best_fitness = 0;
 	this.best_fitness_ever = 0;
-	this.best =[];
+	this.best = null;
 	
 	this.curIsAlive = null;
 	this.inited = false;
 	this.playing = false;
 	this.stopped = false;
 	this.agentIndex = 0;
+	this.loadBest = false;
 	
-	this.init = function(loadBest){
+	this.init = function(){
 		this.average_fitness = 0;
 		this.best_fitness = 0;
 		this.agentIndex = 0;
@@ -48,7 +49,7 @@ God.Simulation = function (el, root) {
 		var numWeights = this.pacmen_agents[0].getWeightsCount();
 		console.log("Num Weights: " + numWeights);
 
-		if(!loadBest){
+		if(!this.loadBest){
 		
 			this.geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
 			this.pacmen_chromos = this.geneticAlgo.getPopulation();
@@ -57,7 +58,13 @@ God.Simulation = function (el, root) {
 				this.pacmen_agents[i].neuralNetwork.setWeights(this.pacmen_chromos[i].weights);
 			
 		} else {
-			this.loadBest();
+			this.geneticAlgo = new Genomics.Algorithm(Params.POPULATION, Params.MUTATION_RATE, Params.CROSS_RATE, numWeights, Params.PERTURBATION_RATE, Params.ELITE_COUNT, Params.ELITE_NUMBER);
+			this.pacmen_chromos = this.geneticAlgo.getPopulation();
+			var j = 0;
+			for(j = 0; j < Params.ELITE_NUMBER; j++)
+				pacman_chromos[j] = this.best;
+			for (var i=j; i<Params.POPULATION; i++)
+				this.pacmen_agents[i].neuralNetwork.setWeights(this.pacmen_chromos[i].weights);
 		}
 
 		this.cur_completed = 0;
@@ -134,16 +141,22 @@ God.Simulation = function (el, root) {
 		this.average_fitness = this.geneticAlgo.getAverageFitness();
 		this.best_fitness = this.geneticAlgo.getBestFitness();
 		this.best_fitness_ever = Math.max(this.best_fitness_ever, this.best_fitness);
-		//this.geneticAlgo.getBest(1,1,this.best);
+		
+		var temp = []
+		this.geneticAlgo.getBest(1,1,temp);
+		
+		temp = temp[0];
+		if(best == null)
+			best = temp;
+		else if(best.fitness < temp.fitness)
+				best = temp;
+		
 	    //and reset their positions etc
 		//insert the new (hopefully)improved brains back into the pacmen
 		for (var i=0; i<Params.POPULATION; ++i) {
 			this.pacmen_agents[i].setWeights(this.pacmen_chromos[i].weights);
 			this.pacmen_agents[i].reset();
 		}
-
-
-
 
 		if (this.currentGeneration % 1 == 0) {
 
@@ -161,69 +174,27 @@ God.Simulation = function (el, root) {
 		}
 	}
 	
-	this.saveBest = function(){
-	    var actBest = this.best[0];
-	    console.log("Saving...");
-	    console.log("ActBest: " + actBest);
-		window.open('data:text/text;charset=utf-8,' + actBest.weights + "\n" + actBest.fitness);
-
-	}
-	
-	this.loadBest = function () {
-	    console.log("Loading...");
-	}
-	
 	this.mainLoop = function(){
 		while(this.playing)
 			this.runGeneration();
 	}
-
-	this.saveToFile = function(filename, obj)
-	{
-	    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-	    window.requestFileSystem(window.PERSISTENT, 1024, function (fs) {
-	        fs.root.getFile(filename, { create: true, exclusive: true }, function (file) {
-	            file.createWriter(function (writer) {
-	                var blob = new Blob(obj, { type: 'text/plain' });
-	                writer.write(blob);
-	            });
-	        });
-	    }, function () {
-	        console.log("Could not access file system");
-	    });
+	
+	this.dataToJSONTab(){
+		var json = JSON.stringify(this.best.weights);
+		var outputWindow = window.open("","_blank");
+		openWindow.document.write(data);
 	}
-
-	this.loadFromFile = function(filename)
-	{
-	    var onInitFs = function(fs) {
-
-	        fs.root.getFile(filename, {}, function (fileEntry) {
-
-	            // Get a File object representing the file,
-	            // then use FileReader to read its contents.
-	            fileEntry.file(function (file) {
-	                var reader = new FileReader();
-
-	                reader.onloadend = function (e) {
-	                    var txtArea = document.createElement('textarea');
-	                    txtArea.value = this.result;
-	                    document.body.appendChild(txtArea);
-	                };
-
-	                reader.readAsText(file);
-	            }, errorHandler);
-
-	        }, errorHandler);
-
-	    }
-
-	    window.requestFileSystem(window.TEMPORARY, 1024 * 1024, onInitFs, errorHandler);
+	
+	this.JSONtoData(text){
+		var struct = JSON.parse(text);
+		this.loadBest = true;
+		this.best = new Genomics.Genome(struct, 0);
 	}
 
 	this.start = function () {
 	    if (this.inited == false) {
 	        this.inited = true;
-	        this.init(false);
+	        this.init();
 	    }
 
 	    this.playing = true;

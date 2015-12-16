@@ -44,6 +44,7 @@
     <input type="button" value="Stop" onclick="stop()" />
     <input type="button" value="Save" onclick="save()"/>
     <input type="button" value="Load" onclick="load()"/>
+	<input type="text" id="dataEntry" />
   </div>
   <script src="genomic.js"></script>
   <script src="neural.js"></script>
@@ -68,11 +69,11 @@
     }
 
     function save() {
-        sim.saveBest();
+        sim.dataToJSONTab();
     }
 
     function load() {
-        sim.loadBest();
+        sim.JSONtoData(document.getElementById("dataEntry"));
     }
 
     function start() {
