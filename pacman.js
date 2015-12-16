@@ -180,7 +180,7 @@ God.Simulation = function (el, root) {
 	    this.stop();
 	    this.visuals = !this.visuals;
 	    this.start();
-
+	}
 	
 	this.dataToJSONTab = function(){
 		var json = JSON.stringify(this.best.weights);
